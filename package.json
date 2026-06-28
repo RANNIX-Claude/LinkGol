@@ -10,10 +10,15 @@
     "lint": "eslint . --ext .js,.jsx"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3",
     "@supabase/supabase-js": "^2.108.2",
     "pg": "^8.22.0",
+    "qrcode": "^1.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "resend": "^3.0.0",
+    "sharp": "^0.33.1",
+    "twilio": "^5.0.0",
     "ws": "^8.21.0"
   },
   "devDependencies": {
