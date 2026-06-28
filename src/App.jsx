@@ -11,17 +11,30 @@ function App() {
       id: 1,
       text: '¡Hola! Soy Roberto de México.',
       sender: 'received',
-      avatar: '🇲🇽',
+      userName: 'Roberto · México',
+      userAvatar: '👨',
       timestamp: '09:41',
-      translated: true,
-      originalLanguage: 'Español',
-      originalText: '¡Hola! Soy Roberto de México.'
+      translated: false,
+      read: true
     },
     {
       id: 2,
       text: 'Hi! I\'m Anna from Russia. Nice to meet you!',
       sender: 'self',
-      timestamp: '09:42'
+      timestamp: '09:42',
+      read: true
+    },
+    {
+      id: 3,
+      text: 'Спасибо! Приятно познакомиться. Как дела?',
+      sender: 'received',
+      userName: 'Roberto · México',
+      userAvatar: '👨',
+      timestamp: '09:43',
+      translated: true,
+      originalLanguage: 'Español',
+      originalText: '¡Gracias! Encantado de conocerte. ¿Cómo estás?',
+      read: true
     }
   ])
   const [typing, setTyping] = useState(false)
@@ -73,9 +86,12 @@ function App() {
             message={msg.text}
             sender={msg.sender}
             timestamp={msg.timestamp}
+            userName={msg.userName}
+            userAvatar={msg.userAvatar}
             translated={msg.translated}
             originalLanguage={msg.originalLanguage}
             originalText={msg.originalText}
+            read={msg.read}
           />
         ))}
         {typing && <TypingIndicator />}
