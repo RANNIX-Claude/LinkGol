@@ -1,0 +1,19 @@
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.App h1 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.App p {
+  font-size: 1.2rem;
+  color: #6b7280;
+  margin: 0;
+}
