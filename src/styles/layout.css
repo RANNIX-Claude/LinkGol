@@ -1,0 +1,51 @@
+/* Multi-Chat Layout */
+
+.linkgol-main {
+  display: flex;
+  height: 100vh;
+  background: #ffffff;
+}
+
+.linkgol-sidebar {
+  width: 360px;
+  border-right: 1px solid #e5e5ea;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.linkgol-chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .linkgol-main {
+    flex-direction: column;
+  }
+
+  .linkgol-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 20vh;
+    border-right: none;
+    border-bottom: 1px solid #e5e5ea;
+  }
+
+  .linkgol-chat-area {
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .linkgol-sidebar {
+    display: none;
+  }
+
+  .linkgol-chat-area {
+    width: 100%;
+  }
+}
