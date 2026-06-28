@@ -1,37 +1,34 @@
-/* LinkGol Chat Theme - DM Sans + Glassmorphism */
+/* LinkGol Chat Theme - Clean, Invisible Translation */
 
 :root {
   /* Primarios */
   --primary: #0052CC;
-  --primary-dark: #003A99;
-  --primary-light: #E6F0FF;
-  --secondary: #F59E0B;
-  --secondary-dark: #D97706;
+  --primary-dark: #0041A3;
+  --primary-light: #E8F0FF;
 
   /* Neutrales */
-  --cream: #faf6f0;
-  --cream2: #f5f0e8;
-  --cream3: #ede7db;
-  --text: #1a1a1a;
-  --text2: rgba(26,26,26,0.6);
-  --text3: rgba(26,26,26,0.38);
-  --white: #ffffff;
+  --bg-main: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --msg-sent: #0052CC;
+  --msg-received: #E5E5EA;
+  --text: #000000;
+  --text-secondary: #65676B;
+  --text-tertiary: #A0AEC0;
+  --white: #FFFFFF;
 
   /* Status */
-  --success: #10B981;
+  --success: #31A24C;
   --warning: #F59E0B;
-  --danger: #EF4444;
+  --danger: #E74C3C;
 
   /* Spacing */
   --radius-sm: 12px;
-  --radius-md: 20px;
-  --radius-lg: 32px;
-  --radius-xl: 48px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 82, 204, 0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -302,53 +299,65 @@ header.chat-header {
   margin-bottom: 2px;
 }
 
+/* Message Bubble - WhatsApp Style Professional */
 .message-bubble {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 18px;
   word-wrap: break-word;
   font-size: 15px;
-  line-height: 1.4;
-  animation: slideInRight 0.3s ease-out;
+  line-height: 1.45;
+  animation: slideInRight 0.25s ease-out;
+  max-width: 80%;
+  box-shadow: var(--shadow-sm);
 }
 
+/* SENT MESSAGE (Blue) */
 .message-bubble.sent {
-  background: var(--primary);
+  background: var(--msg-sent);
   color: var(--white);
-  border-radius: 18px 2px 18px 18px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 20px 4px 20px 20px;
+  box-shadow: 0 1px 3px rgba(0, 82, 204, 0.15);
+  font-weight: 400;
+  letter-spacing: 0.3px;
 }
 
+/* RECEIVED MESSAGE (Gray) */
 .message-bubble.received {
-  background: #e5e5ea;
+  background: var(--msg-received);
   color: var(--text);
-  border-radius: 2px 18px 18px 18px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border-radius: 4px 20px 20px 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  font-weight: 400;
 }
 
+/* TRANSLATED MESSAGE = INVISIBLE (same as received) */
 .message-bubble.received.translated {
-  /* 100% INVISIBLE: Sin indicadores visuales de traducción */
-  background: #e5e5ea;  /* Same as regular received */
-  border-left: none;     /* No border indicator */
-  /* La traducción es completamente transparente */
+  /* 100% INVISIBLE - No indicators */
+  background: var(--msg-received);
+  border-radius: 4px 20px 20px 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .message-meta {
-  font-size: 11px;
-  color: #999;
+  font-size: 12px;
+  color: var(--text-tertiary);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 3px;
-  padding: 2px 4px 0px;
+  gap: 4px;
+  padding: 4px 4px 0px 0px;
+  margin-top: 2px;
 }
 
 .message-group.sent .message-meta {
-  color: rgba(0, 82, 204, 0.7);
+  color: rgba(0, 0, 0, 0.5);
+  justify-content: flex-end;
 }
 
 .read-receipt {
-  font-size: 11px;
-  color: var(--primary);
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-left: 2px;
 }
 
 .view-original-btn {

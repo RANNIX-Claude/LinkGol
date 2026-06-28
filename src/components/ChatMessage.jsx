@@ -14,48 +14,102 @@ export default function ChatMessage({
   const [showOriginal, setShowOriginal] = useState(false)
   const isSent = sender === 'self'
 
+  // Formatear timestamp
+  const formatTime = (ts) => {
+    if (!ts) return ''
+    try {
+      return new Date(ts).toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch (e) {
+      return ts
+    }
+  }
+
   return (
     <div
       className={`message-group ${isSent ? 'sent' : 'received'}`}
       onClick={() => originalText && setShowOriginal(!showOriginal)}
-      title={originalText ? "Toca para ver original" : ""}
-      style={{ cursor: originalText ? 'pointer' : 'default' }}
+      style={{
+        cursor: originalText ? 'pointer' : 'default',
+        opacity: showOriginal ? 1 : 1,
+        transition: 'all 0.2s ease'
+      }}
     >
       {!isSent && (
-        <div className="message-avatar">
+        <div className="message-avatar" title={userName}>
           {userAvatar}
         </div>
       )}
+
       <div className="message-content">
         {!isSent && (
           <div className="message-username">
             {userName}
           </div>
         )}
-        <div className={`message-bubble ${isSent ? 'sent' : 'received'} ${translated ? 'translated' : ''}`}>
+
+        {/* Main Message Bubble */}
+        <div
+          className={`message-bubble ${isSent ? 'sent' : 'received'} ${translated ? 'translated' : ''}`}
+        >
           {showOriginal && originalText ? (
-            // Mostrar original (discreto)
+            // Show Original (Discreet)
             <div>
-              <div style={{ opacity: 0.7, fontSize: '11px', marginBottom: '6px', fontStyle: 'italic', color: 'var(--text3)' }}>
+              <div style={{
+                fontSize: '13px',
+                marginBottom: '8px',
+                opacity: 0.7,
+                fontStyle: 'italic'
+              }}>
                 📌 {originalLanguage || 'Original'}
               </div>
-              <div style={{ fontSize: '14px', lineHeight: '1.4' }}>{originalText}</div>
+              <div style={{ fontSize: '15px', lineHeight: '1.45', fontWeight: 400 }}>
+                {originalText}
+              </div>
             </div>
           ) : (
-            // Mostrar mensaje traducido (normal, sin indicadores)
-            <div style={{ fontSize: '15px', lineHeight: '1.4' }}>
+            // Show Translated (Pure, No Indicators)
+            <div style={{ fontSize: '15px', lineHeight: '1.45', fontWeight: 400 }}>
               {message}
             </div>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: isSent ? 'flex-end' : 'flex-start', paddingTop: '4px', fontSize: '12px' }}>
-          <span className="message-meta" style={{ color: 'var(--text3)' }}>
-            {timestamp}
+
+        {/* Meta (Time + Read receipt + Tap hint) */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          justifyContent: isSent ? 'flex-end' : 'flex-start',
+          paddingTop: '4px'
+        }}>
+          <span className="message-meta">
+            {formatTime(timestamp)}
           </span>
-          {isSent && read && <span className="read-receipt" style={{ fontSize: '11px' }}>✓✓</span>}
-          {originalText && (
-            <span style={{ fontSize: '10px', opacity: 0.4, cursor: 'pointer' }}>
-              {showOriginal ? '▼ ver traducción' : '▲'}
+
+          {isSent && read && (
+            <span className="read-receipt">✓✓</span>
+          )}
+
+          {originalText && !showOriginal && (
+            <span style={{
+              fontSize: '10px',
+              opacity: 0.3,
+              cursor: 'pointer',
+              transition: 'opacity 0.2s'
+            }}>
+              ▲
+            </span>
+          )}
+
+          {originalText && showOriginal && (
+            <span style={{
+              fontSize: '10px',
+              opacity: 0.3
+            }}>
+              ▼
             </span>
           )}
         </div>
