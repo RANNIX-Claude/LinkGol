@@ -1,70 +1,90 @@
 import React, { useState } from 'react'
 
 export default function DualPhoneDemo() {
-  const [messagesRoberto, setMessagesRoberto] = useState([
-    { text: '¡Hola Anna! Soy Roberto de México.', sender: 'sent', timestamp: '09:41' },
-    { text: 'Привет, Анна! Я Роберто из Мексики!', sender: 'received', timestamp: '09:42', name: 'Anna' }
-  ])
-
-  const [messagesAnna, setMessagesAnna] = useState([
-    { text: 'Привет, Роберто! Я Анна из России!', sender: 'sent', timestamp: '09:42' },
-    { text: '¡Hola, Roberto! ¡Yo soy Anna de Rusia!', sender: 'received', timestamp: '09:42', name: 'Roberto' }
-  ])
-
-  const [inputRoberto, setInputRoberto] = useState('')
-  const [inputAnna, setInputAnna] = useState('')
-
-  const addMessageRoberto = () => {
-    if (!inputRoberto.trim()) return
-
-    const autoResponses = {
-      es: [
-        'Спасибо! Это здорово!',
-        'Как интересно!',
-        'Я согласна!',
-        'Отлично!'
+  const scenarios = {
+    es_ru: {
+      name: 'Roberto 🇪🇸 ↔ Anna 🇷🇺',
+      person1: { name: 'Roberto', lang: 'es', flag: '🇪🇸', color: '#0052CC' },
+      person2: { name: 'Anna', lang: 'ru', flag: '🇷🇺', color: '#0F6E56' },
+      initial1: [
+        { text: '¡Hola Anna! Soy Roberto de México.', sender: 'sent', timestamp: '09:41' },
+        { text: 'Привет, Роберто! Я Анна из России!', sender: 'received', timestamp: '09:42', name: 'Anna' }
       ],
-      ru: [
-        '¡Qué bueno!',
-        '¡Me encanta!',
-        '¡De acuerdo!',
-        '¡Perfecto!'
+      initial2: [
+        { text: 'Привет, Роберто! Я Анна из России!', sender: 'sent', timestamp: '09:42' },
+        { text: '¡Hola, Anna! ¡Yo soy Roberto de México!', sender: 'received', timestamp: '09:42', name: 'Roberto' }
+      ]
+    },
+    en_de: {
+      name: 'John 🇺🇸 ↔ Klaus 🇩🇪',
+      person1: { name: 'John', lang: 'en', flag: '🇺🇸', color: '#0052CC' },
+      person2: { name: 'Klaus', lang: 'de', flag: '🇩🇪', color: '#0F6E56' },
+      initial1: [
+        { text: 'Hi Klaus! I am John from USA.', sender: 'sent', timestamp: '10:15' },
+        { text: 'Hallo John! Ich bin Klaus aus Deutschland.', sender: 'received', timestamp: '10:16', name: 'Klaus' }
+      ],
+      initial2: [
+        { text: 'Hallo John! Ich bin Klaus aus Deutschland.', sender: 'sent', timestamp: '10:16' },
+        { text: 'Hi Klaus! I am John from the USA!', sender: 'received', timestamp: '10:16', name: 'John' }
+      ]
+    },
+    fr_zh: {
+      name: 'Marie 🇫🇷 ↔ Wei 🇨🇳',
+      person1: { name: 'Marie', lang: 'fr', flag: '🇫🇷', color: '#0052CC' },
+      person2: { name: 'Wei', lang: 'zh', flag: '🇨🇳', color: '#0F6E56' },
+      initial1: [
+        { text: 'Bonjour Wei! Je suis Marie de France.', sender: 'sent', timestamp: '14:22' },
+        { text: '你好，玛丽！我叫韦，来自中国。', sender: 'received', timestamp: '14:23', name: 'Wei' }
+      ],
+      initial2: [
+        { text: '你好，玛丽！我叫韦，来自中国。', sender: 'sent', timestamp: '14:23' },
+        { text: 'Bonjour Wei! Je suis Marie de France!', sender: 'received', timestamp: '14:23', name: 'Marie' }
+      ]
+    },
+    pt_it: {
+      name: 'Carlos 🇧🇷 ↔ Marco 🇮🇹',
+      person1: { name: 'Carlos', lang: 'pt', flag: '🇧🇷', color: '#0052CC' },
+      person2: { name: 'Marco', lang: 'it', flag: '🇮🇹', color: '#0F6E56' },
+      initial1: [
+        { text: 'Olá Marco! Sou Carlos do Brasil.', sender: 'sent', timestamp: '16:30' },
+        { text: 'Ciao Carlos! Sono Marco dall\'Italia.', sender: 'received', timestamp: '16:31', name: 'Marco' }
+      ],
+      initial2: [
+        { text: 'Ciao Carlos! Sono Marco dall\'Italia.', sender: 'sent', timestamp: '16:31' },
+        { text: 'Olá Marco! Sou Carlos do Brasil!', sender: 'received', timestamp: '16:31', name: 'Carlos' }
       ]
     }
-
-    setMessagesRoberto([
-      ...messagesRoberto,
-      { text: inputRoberto, sender: 'sent', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) }
-    ])
-
-    setMessagesAnna([
-      ...messagesAnna,
-      { text: inputRoberto + ' [traducido al ruso]', sender: 'received', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }), name: 'Roberto' }
-    ])
-
-    setInputRoberto('')
-
-    setTimeout(() => {
-      const response = autoResponses.ru[Math.floor(Math.random() * autoResponses.ru.length)]
-      setMessagesAnna(prev => [...prev, { text: response, sender: 'sent', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) }])
-      setMessagesRoberto(prev => [...prev, { text: response + ' [traducido al español]', sender: 'received', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }), name: 'Anna' }])
-    }, 800)
   }
 
-  const addMessageAnna = () => {
-    if (!inputAnna.trim()) return
+  const [activeScenario, setActiveScenario] = useState('es_ru')
+  const scenario = scenarios[activeScenario]
 
-    setMessagesAnna([
-      ...messagesAnna,
-      { text: inputAnna, sender: 'sent', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) }
-    ])
+  const [messages1, setMessages1] = useState(scenario.initial1)
+  const [messages2, setMessages2] = useState(scenario.initial2)
+  const [input1, setInput1] = useState('')
+  const [input2, setInput2] = useState('')
 
-    setMessagesRoberto([
-      ...messagesRoberto,
-      { text: inputAnna + ' [traducido al español]', sender: 'received', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }), name: 'Anna' }
-    ])
+  const changeScenario = (key) => {
+    setActiveScenario(key)
+    const newScenario = scenarios[key]
+    setMessages1(newScenario.initial1)
+    setMessages2(newScenario.initial2)
+    setInput1('')
+    setInput2('')
+  }
 
-    setInputAnna('')
+  const addMessage1 = () => {
+    if (!input1.trim()) return
+    setMessages1([...messages1, { text: input1, sender: 'sent', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) }])
+    setMessages2([...messages2, { text: input1 + ' [traducido]', sender: 'received', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }), name: scenario.person1.name }])
+    setInput1('')
+  }
+
+  const addMessage2 = () => {
+    if (!input2.trim()) return
+    setMessages2([...messages2, { text: input2, sender: 'sent', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) }])
+    setMessages1([...messages1, { text: input2 + ' [traducido]', sender: 'received', timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }), name: scenario.person2.name }])
+    setInput2('')
   }
 
   const Phone = ({ title, color, messages, input, setInput, onSend }) => (
@@ -76,10 +96,9 @@ export default function DualPhoneDemo() {
       boxShadow: '0 0 0 8px var(--surface-0)',
       display: 'flex',
       flexDirection: 'column',
-      height: '520px',
+      height: '500px',
       minWidth: 0
     }}>
-      {/* Status Bar */}
       <div style={{
         background: color,
         color: 'white',
@@ -94,7 +113,6 @@ export default function DualPhoneDemo() {
         <span>09:45</span>
       </div>
 
-      {/* Messages */}
       <div style={{
         flex: 1,
         overflowY: 'auto',
@@ -105,10 +123,7 @@ export default function DualPhoneDemo() {
         background: 'var(--surface-0)'
       }}>
         {messages.map((msg, i) => (
-          <div key={i} style={{
-            display: 'flex',
-            justifyContent: msg.sender === 'sent' ? 'flex-end' : 'flex-start'
-          }}>
+          <div key={i} style={{ display: 'flex', justifyContent: msg.sender === 'sent' ? 'flex-end' : 'flex-start' }}>
             <div style={{
               background: msg.sender === 'sent' ? color : 'var(--surface-1)',
               color: msg.sender === 'sent' ? 'white' : 'var(--text-primary)',
@@ -127,7 +142,6 @@ export default function DualPhoneDemo() {
         ))}
       </div>
 
-      {/* Input */}
       <div style={{
         padding: '12px',
         borderTop: '0.5px solid var(--border)',
@@ -179,13 +193,31 @@ export default function DualPhoneDemo() {
   return (
     <div style={{ padding: '1.5rem', background: 'var(--surface-0)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--text-primary)' }}>
-          LinkGol — Traducción Invisible
-        </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-          Escribe en cualquier teléfono y ve la traducción en tiempo real
-        </p>
+        {/* Scenario Selector */}
+        <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', alignSelf: 'center' }}>Demo:</span>
+          {Object.entries(scenarios).map(([key, s]) => (
+            <button
+              key={key}
+              onClick={() => changeScenario(key)}
+              style={{
+                padding: '8px 14px',
+                borderRadius: '20px',
+                border: activeScenario === key ? '2px solid var(--fill-accent)' : '0.5px solid var(--border)',
+                background: activeScenario === key ? 'var(--bg-accent)' : 'var(--surface-1)',
+                color: activeScenario === key ? 'var(--text-accent)' : 'var(--text-primary)',
+                fontSize: '12px',
+                fontWeight: activeScenario === key ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
 
+        {/* Phones */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -193,23 +225,22 @@ export default function DualPhoneDemo() {
           flex: 1
         }}>
           <Phone
-            title="Roberto 🇪🇸"
-            color="#0052CC"
-            messages={messagesRoberto}
-            input={inputRoberto}
-            setInput={setInputRoberto}
-            onSend={addMessageRoberto}
+            title={`${scenario.person1.name} ${scenario.person1.flag}`}
+            color={scenario.person1.color}
+            messages={messages1}
+            input={input1}
+            setInput={setInput1}
+            onSend={addMessage1}
           />
           <Phone
-            title="Anna 🇷🇺"
-            color="#0F6E56"
-            messages={messagesAnna}
-            input={inputAnna}
-            setInput={setInputAnna}
-            onSend={addMessageAnna}
+            title={`${scenario.person2.name} ${scenario.person2.flag}`}
+            color={scenario.person2.color}
+            messages={messages2}
+            input={input2}
+            setInput={setInput2}
+            onSend={addMessage2}
           />
         </div>
-
       </div>
     </div>
   )
