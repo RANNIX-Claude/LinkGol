@@ -5,11 +5,13 @@ import ChatInput from './components/ChatInput'
 import ContactList from './components/ContactList'
 import TypingIndicator from './components/TypingIndicator'
 import InviteDialog from './components/InviteDialog'
+import DualPhoneDemo from './components/DualPhoneDemo'
 import * as API from './services/api'
 import './App.css'
 import './styles/layout.css'
 
 function App() {
+  const [showDemo, setShowDemo] = useState(false)
   // ═══════════════════════════════════════════════════════════
   // HOST STATE
   // ═══════════════════════════════════════════════════════════
@@ -351,6 +353,35 @@ function App() {
   // RENDER
   // ═══════════════════════════════════════════════════════════
 
+  if (showDemo) {
+    return (
+      <div>
+        <DualPhoneDemo />
+        <button
+          onClick={() => setShowDemo(false)}
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '20px',
+            background: 'var(--fill-accent)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '56px',
+            height: '56px',
+            fontSize: '20px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            zIndex: 999
+          }}
+          title="Volver a la app"
+        >
+          ←
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="linkgol-main">
       {/* Sidebar: Contacts */}
@@ -408,6 +439,29 @@ function App() {
           onClose={() => setShowInviteDialog(false)}
         />
       )}
+
+      {/* Demo Button */}
+      <button
+        onClick={() => setShowDemo(true)}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'var(--fill-accent)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50%',
+          width: '56px',
+          height: '56px',
+          fontSize: '20px',
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          zIndex: 999
+        }}
+        title="Ver demo de dos teléfonos"
+      >
+        📱
+      </button>
     </div>
   )
 }

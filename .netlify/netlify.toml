@@ -1,0 +1,57 @@
+functionsDirectory = "C:\\Users\\asus\\OneDrive\\work\\LinkGOL\\Dev\\netlify\\functions"
+functionsDirectoryOrigin = "config-v1"
+redirectsOrigin = "config"
+plugins = []
+headers = []
+
+[build]
+publish = "C:\\Users\\asus\\OneDrive\\work\\LinkGOL\\Dev\\dist"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "npm run build"
+functions = "C:\\Users\\asus\\OneDrive\\work\\LinkGOL\\Dev\\netlify\\functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[dev]
+command = "npm run dev"
+port = 3000.0
+
+[env]
+
+[env.production]
+VITE_SUPABASE_URL = "https://xeypxgwbhpvxifiwmztk.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTUyMjUsImV4cCI6MjA5ODE5MTIyNX0.BBv9ikI1qeZ8U1_smXPppyNH-EIGpwotrX-THbWttIo"
+VITE_GOOGLE_MAPS_KEY = ""
+
+[env.development]
+VITE_SUPABASE_URL = "https://xeypxgwbhpvxifiwmztk.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTUyMjUsImV4cCI6MjA5ODE5MTIyNX0.BBv9ikI1qeZ8U1_smXPppyNH-EIGpwotrX-THbWttIo"
+
+[functions]
+
+[functions."*"]
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
