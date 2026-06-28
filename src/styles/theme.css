@@ -326,8 +326,10 @@ header.chat-header {
 }
 
 .message-bubble.received.translated {
-  background: #fffacd;
-  border-left: 3px solid var(--secondary);
+  /* 100% INVISIBLE: Sin indicadores visuales de traducción */
+  background: #e5e5ea;  /* Same as regular received */
+  border-left: none;     /* No border indicator */
+  /* La traducción es completamente transparente */
 }
 
 .message-meta {
