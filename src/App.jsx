@@ -5,6 +5,7 @@ import ChatInput from './components/ChatInput'
 import ContactList from './components/ContactList'
 import TypingIndicator from './components/TypingIndicator'
 import InviteDialog from './components/InviteDialog'
+import * as API from './services/api'
 import './App.css'
 import './styles/layout.css'
 
@@ -150,6 +151,41 @@ function App() {
   const messages = currentConversation?.messages || []
 
   // ═══════════════════════════════════════════════════════════
+  // API LOADING STATE
+  // ═══════════════════════════════════════════════════════════
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  // ═══════════════════════════════════════════════════════════
+  // EFFECTS
+  // ═══════════════════════════════════════════════════════════
+
+  // Load conversations & contacts on mount
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        // En producción: usar APIs reales
+        // const convResponse = await API.getConversations(hostProfile.id)
+        // const contactResponse = await API.getContacts(hostProfile.id)
+        // setConversations(convResponse.conversations || [])
+        // setContacts(contactResponse.contacts || [])
+
+        // Por ahora: usar datos simulados (ya están en state)
+        console.log('✅ Datos simulados cargados')
+      } catch (err) {
+        setError(err.message)
+        console.error('Error loading data:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadData()
+  }, [hostProfile.id])
+
+  // ═══════════════════════════════════════════════════════════
   // HANDLERS
   // ═══════════════════════════════════════════════════════════
 
@@ -161,11 +197,11 @@ function App() {
     scrollToBottom()
   }, [messages])
 
-  const handleSendMessage = (text) => {
+  const handleSendMessage = async (text) => {
     if (!text.trim()) return
 
     const newMessage = {
-      id: messages.length + 1,
+      id: Date.now(),
       text,
       sender: 'self',
       timestamp: new Date().toLocaleTimeString('es-MX', {
@@ -176,7 +212,7 @@ function App() {
       read: true
     }
 
-    // Actualizar messages
+    // Optimistic update
     setConversations(prevConvs =>
       prevConvs.map(conv =>
         conv.id === activeConversation
@@ -185,74 +221,122 @@ function App() {
       )
     )
 
-    // Simular respuesta traducida
-    setTyping(true)
-    setTimeout(() => {
-      const guestLanguages = {
-        'conv-1': { idioma: 'ru', nombre: 'Anna' },
-        'conv-2': { idioma: 'de', nombre: 'Carlos' }
-      }
+    // En producción: POST /api/v2/messages
+    try {
+      // const apiResponse = await API.sendMessage(
+      //   activeConversation,
+      //   hostProfile.id,
+      //   hostProfile.nombre,
+      //   text,
+      //   hostProfile.idioma_default
+      // )
+      // console.log('✅ Mensaje enviado:', apiResponse)
 
-      const guestInfo = guestLanguages[activeConversation]
-      if (!guestInfo) return
-
-      const responses = {
-        ru: {
-          'thanks': 'Спасибо за сообщение!',
-          'hi': 'Привет! Как дела?',
-          'bye': 'До свидания!',
-          'default': 'Я согласен! 👍'
-        },
-        de: {
-          'thanks': 'Danke für die Nachricht!',
-          'hi': 'Hallo! Wie geht es dir?',
-          'bye': 'Auf Wiedersehen!',
-          'default': 'Ich stimme zu! 👍'
+      // Por ahora: simular respuesta
+      setTyping(true)
+      setTimeout(() => {
+        const guestLanguages = {
+          'conv-1': { idioma: 'ru', nombre: 'Anna' },
+          'conv-2': { idioma: 'de', nombre: 'Carlos' }
         }
-      }
 
-      const translations = responses[guestInfo.idioma] || responses.ru
-      const randomResponse = Object.values(translations)[
-        Math.floor(Math.random() * Object.values(translations).length - 1)
-      ]
+        const guestInfo = guestLanguages[activeConversation]
+        if (!guestInfo) {
+          setTyping(false)
+          return
+        }
 
-      const response = {
-        id: messages.length + 2,
-        text: randomResponse,
-        sender: 'received',
-        userName: guestInfo.nombre,
-        userAvatar:
-          activeConversation === 'conv-1'
-            ? '👩'
-            : activeConversation === 'conv-2'
-              ? '👨'
-              : '👤',
-        timestamp: new Date().toLocaleTimeString('es-MX', {
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        translated: true,
-        originalLanguage: guestInfo.idioma === 'ru' ? 'Ruso' : 'Alemán',
-        originalText: randomResponse + ' (Original)',
-        read: true
-      }
+        const responses = {
+          ru: ['Спасибо! 👍', 'Согласен!', 'Отлично!', 'Понятно!'],
+          de: ['Danke! 👍', 'Einverstanden!', 'Perfekt!', 'Klar!']
+        }
 
-      setConversations(prevConvs =>
-        prevConvs.map(conv =>
-          conv.id === activeConversation
-            ? { ...conv, messages: [...conv.messages, response] }
-            : conv
+        const translations = responses[guestInfo.idioma] || responses.ru
+        const randomResponse = translations[Math.floor(Math.random() * translations.length)]
+
+        const response = {
+          id: Date.now() + 1,
+          text: randomResponse,
+          sender: 'received',
+          userName: guestInfo.nombre,
+          userAvatar:
+            activeConversation === 'conv-1'
+              ? '👩'
+              : activeConversation === 'conv-2'
+                ? '👨'
+                : '👤',
+          timestamp: new Date().toLocaleTimeString('es-MX', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          translated: true,
+          originalLanguage: guestInfo.idioma === 'ru' ? 'Ruso' : 'Alemán',
+          originalText: randomResponse,
+          read: true
+        }
+
+        setConversations(prevConvs =>
+          prevConvs.map(conv =>
+            conv.id === activeConversation
+              ? { ...conv, messages: [...conv.messages, response] }
+              : conv
+          )
         )
-      )
 
+        setTyping(false)
+      }, 1500)
+    } catch (err) {
+      setError(err.message)
+      console.error('Error sending message:', err)
       setTyping(false)
-    }, 1500)
+    }
   }
 
-  const handleInviteContact = (contactEmail, contactName) => {
-    console.log(`Invitando a ${contactName} (${contactEmail})`)
-    // En producción: POST /api/v2/conversations
-    setShowInviteDialog(false)
+  const handleInviteContact = async (contactEmail, contactName) => {
+    try {
+      setIsLoading(true)
+
+      // En producción: usar API real
+      // const response = await API.createConversation(
+      //   hostProfile.id,
+      //   contactEmail,
+      //   contactName,
+      //   hostProfile.idioma_default
+      // )
+      // console.log('✅ Conversación creada:', response)
+
+      // Por ahora: crear localmente
+      const newConversation = {
+        id: `conv-${Date.now()}`,
+        guest_name: contactName,
+        guest_email: contactEmail,
+        guest_photo: contactName.charAt(0) === 'A' ? '👩' : '👨',
+        host_idioma: hostProfile.idioma_default,
+        guest_idioma: null,
+        qr_code: `QR_${Date.now()}`,
+        lastMessage: 'Sin mensajes',
+        timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        messages: [
+          {
+            id: 1,
+            text: `¡Hola ${contactName}! Bienvenido a LinkGol.`,
+            sender: 'self',
+            timestamp: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+            translated: false,
+            read: true
+          }
+        ]
+      }
+
+      setConversations(prev => [...prev, newConversation])
+      setShowInviteDialog(false)
+      console.log(`✅ Invitación enviada a ${contactName}`)
+    } catch (err) {
+      setError(err.message)
+      console.error('Error inviting contact:', err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleChangeHostLanguage = (newLanguage) => {
