@@ -9,8 +9,8 @@ async function executeSQL() {
   })
 
   try {
-    console.log('📖 Leyendo reset_database.sql...')
-    const sqlContent = fs.readFileSync('./reset_database.sql', 'utf-8')
+    console.log('📖 Leyendo reset_database_v2.sql...')
+    const sqlContent = fs.readFileSync('./reset_database_v2.sql', 'utf-8')
 
     console.log('🔗 Conectando a Supabase PostgreSQL...')
     await client.connect()

@@ -1,46 +1,48 @@
-# MODELO_DATOS.md — LinkGol v1.0
+# MODELO_DATOS.md — LinkGol v2.0 (Conversaciones 1:1)
 
-## Diagrama de Entidades
+## Diagrama de Entidades (Corregido)
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│  users (hosts)                                              │
-│  ├─ id (UUID)                                               │
-│  ├─ google_id                                               │
-│  ├─ email                                                   │
-│  ├─ nombre                                                  │
-│  ├─ idioma_preferido                                        │
-│  ├─ plan ('free' | 'pro_$20')                              │
-│  ├─ stripe_customer_id                                      │
-│  ├─ avatar_url                                              │
-│  └─ created_at, updated_at                                  │
-│                                                             │
-├──────────────────┬─────────────────────┬───────────────────┤
-│                  │                     │                   │
-│  rooms           │   messages          │  translations     │
-│  ├─ id           │   ├─ id             │  ├─ id            │
-│  ├─ host_id (FK) │   ├─ room_id (FK)   │  ├─ msg_id (FK)   │
-│  ├─ nombre       │   ├─ sender_id (FK) │  ├─ idioma         │
-│  ├─ qr_code      │   ├─ texto_orig     │  ├─ texto_trad     │
-│  ├─ qr_url       │   ├─ idioma_orig    │  └─ hash_cache     │
-│  ├─ creada_por   │   ├─ created_at     │                    │
-│  └─ created_at   │   └─ updated_at     │                    │
-│                  │                     │                    │
-└──────────────────┴─────────────────────┴───────────────────┘
-         │
-         │ puede tener
-         ↓
-   ┌──────────────────┐
-   │  guest_sessions  │
-   │  ├─ id           │
-   │  ├─ room_id (FK) │
-   │  ├─ nombre       │
-   │  ├─ idioma       │
-   │  ├─ token        │
-   │  └─ created_at   │
-   └──────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  users (hosts que pagan)                                         │
+│  ├─ id (UUID)                                                    │
+│  ├─ google_id                                                    │
+│  ├─ email                                                        │
+│  ├─ nombre                                                       │
+│  ├─ idioma_default (es, en, ru, etc - FIJO para el host)       │
+│  ├─ plan ('free' | 'pro_$20')                                   │
+│  ├─ stripe_customer_id                                           │
+│  ├─ avatar_url                                                   │
+│  └─ created_at, updated_at                                       │
+│                                                                  │
+├──────────────────────────┬──────────────────────┬────────────────┤
+│                          │                      │                │
+│  contacts                │  conversations       │  messages      │
+│  ├─ id                   │  ├─ id               │  ├─ id         │
+│  ├─ host_id (FK)         │  ├─ host_id (FK)     │  ├─ conv_id(FK)│
+│  ├─ contact_name         │  ├─ guest_id (FK)    │  ├─ sender_id  │
+│  ├─ contact_email        │  ├─ host_idioma      │  ├─ texto_orig │
+│  ├─ contact_photo        │  ├─ guest_idioma     │  ├─ idioma_orig│
+│  ├─ phone (optional)     │  ├─ qr_code (único)  │  ├─ created_at │
+│  └─ created_at           │  ├─ qr_url           │  └─ read       │
+│                          │  └─ created_at       │                │
+└──────────────────────────┴──────────────────────┴────────────────┘
+                           │
+                           │ genera
+                           ↓
+                    ┌─────────────────┐
+                    │  translations   │
+                    │  ├─ id          │
+                    │  ├─ msg_id (FK) │
+                    │  ├─ idioma_dest │
+                    │  ├─ texto_trad  │
+                    │  ├─ hash_cache  │
+                    │  └─ costo_usd   │
+                    └─────────────────┘
 ```
+
+**Cambio Principal:** De `rooms` (salas múltiples) → `conversations` (1:1 por contacto)
 
 ## Tablas SQL (3FN)
 
@@ -197,42 +199,76 @@ INSERT INTO idiomas VALUES
 
 ---
 
-## Flujo de Datos
+## Flujo de Datos (v2.0 — Conversaciones 1:1)
 
-### 1. Host crea sala
+### 1. Host se registra y configura idioma
 
 ```
 User (Google OAuth)
   ↓ (paga $20/mes)
-Room (con QR único)
-  ↓ (genera linkgol.app/u/@usuario/sala-id)
-QR compartible
+Elige idioma: ES (fijo para el host)
   ↓
-Guests escanean
+users.idioma_default = 'es'
+  ↓
+Dashboard con Contactos (vacío)
 ```
 
-### 2. Guest entra a sala
+### 2. Host invita a contacto (genera conversación 1:1)
 
 ```
-QR/Link
+Host invita: "anna@russia.ru" (en español)
   ↓
-guest_sessions (token en localStorage)
-  ↓ (sin registro)
-Chat en su idioma
+conversations (host_id, guest_id, host_idioma='es', qr_code, qr_url)
+  ↓
+contacts (host_id, contact_name='Anna', contact_email='anna@russia.ru')
+  ↓
+Genera QR único: linkgol.app/conv/conv-id-abc123
+Genera Link único: linkgol.app/i/conv-id-abc123
+  ↓
+Envía invitación a anna@russia.ru
 ```
 
-### 3. Mensaje traducido
+### 3. Guest abre link/QR
 
 ```
-Guest A escribe: "Hola, ¿qué tal?"
-  ↓ (idioma: es)
-messages (guarda original)
+Anna abre: linkgol.app/i/conv-id-abc123
   ↓
-Claude API (traduce)
+Elige idioma: RU (por primera vez)
   ↓
-translations (cache el resultado)
+guest_sessions (token en localStorage, idioma='ru')
   ↓
-Guest B ve: "Привет, как дела?" (en su idioma)
+Ve conversación 1:1 con Host (Roberto)
+Host ve en: Español
+Anna ve en: Ruso
+```
+
+### 4. Mensaje traducido (1:1)
+
+```
+Roberto escribe: "¡Hola Anna!"
+  ↓ (idioma: es, en conversations.host_idioma)
+messages (conversation_id, sender_id, texto='¡Hola Anna!', idioma_original='es')
+  ↓
+Claude API: traduce 'es' → 'ru'
+  ↓
+translations (message_id, idioma_destino='ru', texto_traducido='Привет, Анна!')
+  ↓
+Anna ve: "Привет, Анна!" (en ruso)
+Roberto ve: "¡Hola Anna!" (en español)
+```
+
+### 5. Si Host invita a otra persona
+
+```
+Host invita: "carlos@alemania.de" (TAMBIÉN en español, porque elige idioma AL INVITAR)
+  ↓
+conversations (host_id, guest_id='carlos', host_idioma='es', qr_code diferente)
+  ↓
+contacts (agrega otro contacto)
+  ↓
+Roberto ahora tiene 2 conversaciones 1:1:
+  - Conversación 1: con Anna (es ↔ ru)
+  - Conversación 2: con Carlos (es ↔ de)
 ```
 
 ---
