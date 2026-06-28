@@ -177,20 +177,20 @@ export default function DualPhoneDemo() {
   )
 
   return (
-    <div style={{ padding: '2rem', background: 'var(--surface-0)', minHeight: '100vh' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-          LinkGol Demo — Traducción Invisible
+    <div style={{ padding: '1.5rem', background: 'var(--surface-0)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--text-primary)' }}>
+          LinkGol — Traducción Invisible
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '2rem' }}>
-          Escribe en cualquier lado y ve cómo la traducción aparece automáticamente en el otro teléfono
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+          Escribe en cualquier teléfono y ve la traducción en tiempo real
         </p>
 
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '32px',
-          marginBottom: '2rem'
+          gap: '24px',
+          flex: 1
         }}>
           <Phone
             title="Roberto 🇪🇸"
@@ -210,23 +210,6 @@ export default function DualPhoneDemo() {
           />
         </div>
 
-        <div style={{
-          background: 'var(--surface-1)',
-          borderRadius: '12px',
-          border: '0.5px solid var(--border)',
-          padding: '1.5rem'
-        }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            ¿Cómo funciona?
-          </h2>
-          <ul style={{ fontSize: '14px', color: 'var(--text-primary)', margin: 0, paddingLeft: '20px', lineHeight: '1.8' }}>
-            <li><strong>Roberto</strong> escribe en <strong>español</strong> en su teléfono</li>
-            <li>El mensaje se traduce automáticamente a <strong>ruso</strong></li>
-            <li><strong>Anna</strong> lo ve en <strong>ruso</strong> (sin saber que fue traducido)</li>
-            <li>Cuando Anna responde en ruso, Roberto lo ve en español</li>
-            <li><strong>Resultado:</strong> Conversación natural, sin fricción, sin traducción visible</li>
-          </ul>
-        </div>
       </div>
     </div>
   )
