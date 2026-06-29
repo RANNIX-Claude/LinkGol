@@ -1,368 +1,394 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { createInvitation as createInvitationAPI } from '../services/api'
+import '../styles/theme.css'
 
 const CONTEXTOS = [
   { id: 'venta_autos', nombre: '🚗 Venta de Autos', default: 'Hola, tengo un auto para ti' },
   { id: 'renta_inmueble', nombre: '🏠 Renta de Inmueble', default: 'Hola, te quiero mostrar este inmueble' },
-  { id: 'networking', nombre: '👔 Networking Profesional', default: 'Hola, fue un placer conocerte' },
+  { id: 'networking', nombre: '👔 Networking', default: 'Hola, fue un placer conocerte' },
   { id: 'cita_informal', nombre: '😊 Cita Informal', default: 'Hola, me gustaría seguir platicando' },
-  { id: 'soporte_tecnico', nombre: '🔧 Soporte Técnico', default: 'Hola, estoy aquí para ayudarte' },
-  { id: 'comercio', nombre: '🛍️ Comercio General', default: 'Hola, tengo esto para ti' },
+  { id: 'soporte_tecnico', nombre: '🔧 Soporte', default: 'Hola, estoy aquí para ayudarte' },
+  { id: 'comercio', nombre: '🛍️ Comercio', default: 'Hola, tengo esto para ti' },
   { id: 'turismo', nombre: '✈️ Turismo', default: 'Hola, te ayudaré con tu viaje' },
 ]
 
 const SHARE_CHANNELS = [
-  { id: 'whatsapp', name: 'WhatsApp', icon: '💬', color: '#25D366' },
-  { id: 'facebook', name: 'Facebook', icon: '📘', color: '#1877F2' },
-  { id: 'email', name: 'Email', icon: '📧', color: '#EA4335' },
-  { id: 'qr', name: 'QR Code', icon: '📱', color: '#000000' },
-  { id: 'copy', name: 'Copiar Link', icon: '📋', color: '#0052CC' },
+  { id: 'whatsapp', name: 'WhatsApp', icon: '💬' },
+  { id: 'facebook', name: 'Facebook', icon: '📘' },
+  { id: 'email', name: 'Email', icon: '📧' },
+  { id: 'qr', name: 'QR Code', icon: '📱' },
+  { id: 'copy', name: 'Copiar', icon: '📋' },
 ]
 
-export default function CreateInvitation({ userProfile, onInvitationCreated }) {
-  const [step, setStep] = useState('contexto') // contexto, mensaje, compartir, resultado
+export default function CreateInvitation() {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  const [step, setStep] = useState('contexto')
   const [selectedContext, setSelectedContext] = useState(null)
   const [firstMessage, setFirstMessage] = useState('')
-  const [invitationLink, setInvitationLink] = useState(null)
+  const [invitationData, setInvitationData] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  if (!user) {
+    return <div>Redirigiendo...</div>
+  }
 
   const handleContextSelect = (contexto) => {
     setSelectedContext(contexto)
-    setFirstMessage(contexto.default.replace('[nombre]', userProfile.nombre))
+    setFirstMessage(contexto.default)
     setStep('mensaje')
+    setError('')
+  }
+
+  const handleMessageChange = (text) => {
+    if (text.length <= 500) {
+      setFirstMessage(text)
+    }
   }
 
   const handleGenerateInvitation = async () => {
+    if (!firstMessage.trim()) {
+      setError('El mensaje no puede estar vacío')
+      return
+    }
+
     setLoading(true)
+    setError('')
+
     try {
-      // TODO: Backend call to crear_liga endpoint
-      const mockLink = {
-        id: `liga-${Date.now()}`,
-        slug: `inv-${Math.random().toString(36).substr(2, 8)}`,
-        url: `https://linkn.click/${Math.random().toString(36).substr(2, 8)}`,
-        contexto: selectedContext.id,
-        primer_mensaje: firstMessage,
-        host: userProfile.nombre,
-        qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`https://linkn.click/${Math.random().toString(36).substr(2, 8)}`)}`,
-        created_at: new Date().toISOString()
-      }
-      setInvitationLink(mockLink)
+      const result = await createInvitationAPI(user.id, selectedContext.id, firstMessage)
+      setInvitationData(result)
       setStep('compartir')
     } catch (err) {
-      alert('Error creando invitación: ' + err.message)
-    } finally {
+      setError(err.message || 'Error creando invitación')
       setLoading(false)
     }
   }
 
   const handleShare = (channel) => {
-    const message = `${userProfile.nombre} te invita a conversar en LinkN.click\n\n${firstMessage}\n\n${invitationLink.url}`
-    const encodedMessage = encodeURIComponent(message)
+    if (!invitationData) return
 
-    switch (channel) {
-      case 'whatsapp':
-        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank')
-        break
-      case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(invitationLink.url)}`, '_blank')
-        break
-      case 'email':
-        window.location.href = `mailto:?subject=Te invito a conectar en LinkN.click&body=${encodedMessage}`
-        break
-      case 'qr':
-        // Show QR code modal
-        alert('QR Code: ' + invitationLink.qr_code)
-        break
-      case 'copy':
-        navigator.clipboard.writeText(invitationLink.url)
-        alert('¡Link copiado al portapapeles!')
-        break
+    const message = `${user.nombre} te invita a conversar en LinkN.click\n\n"${firstMessage}"\n\n${invitationData.url}`
+
+    if (channel === 'whatsapp') {
+      window.open(invitationData.compartir_url.whatsapp, '_blank')
+    } else if (channel === 'facebook') {
+      window.open(invitationData.compartir_url.facebook, '_blank')
+    } else if (channel === 'email') {
+      window.open(invitationData.compartir_url.email, '_blank')
+    } else if (channel === 'qr') {
+      window.open(invitationData.qr_code_url, '_blank')
+    } else if (channel === 'copy') {
+      navigator.clipboard.writeText(invitationData.url)
+      alert('Link copiado al portapapeles')
     }
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // STEP 1: SELECT CONTEXTO
-  // ═══════════════════════════════════════════════════════════
+  const handleFinish = () => {
+    navigate('/dashboard')
+  }
 
-  if (step === 'contexto') {
-    return (
-      <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 600, marginBottom: '0.5rem' }}>
-          Crea una Liga
-        </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '2rem' }}>
-          Elige el tipo de conversación para generar tu link personalizado
-        </p>
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--cream)',
+        padding: '20px',
+        fontFamily: "'DM Sans', sans-serif"
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '800px',
+          margin: '0 auto',
+          paddingTop: '40px'
+        }}
+      >
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px', color: 'var(--text)' }}>
+            Generar Liga
+          </div>
+          <div style={{ fontSize: '14px', color: 'rgba(26,26,26,0.6)' }}>
+            Paso {step === 'contexto' ? 1 : step === 'mensaje' ? 2 : step === 'compartir' ? 3 : 4} de 4
+          </div>
+        </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '12px'
-        }}>
-          {CONTEXTOS.map(ctx => (
-            <button
-              key={ctx.id}
-              onClick={() => handleContextSelect(ctx)}
+        {/* Progress bar */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '32px' }}>
+          {[1, 2, 3, 4].map((num) => (
+            <div
+              key={num}
               style={{
-                padding: '1.5rem',
-                background: 'var(--surface-1)',
-                border: '0.5px solid var(--border)',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                textAlign: 'center',
-                transition: 'all 0.2s'
+                flex: 1,
+                height: '4px',
+                borderRadius: '2px',
+                background:
+                  (num === 1 && (step === 'contexto' || step === 'mensaje' || step === 'compartir' || step === 'resultado')) ||
+                  (num === 2 && (step === 'mensaje' || step === 'compartir' || step === 'resultado')) ||
+                  (num === 3 && (step === 'compartir' || step === 'resultado')) ||
+                  (num === 4 && step === 'resultado')
+                    ? 'var(--fill-accent)'
+                    : 'rgba(0,0,0,0.1)'
               }}
-              onMouseEnter={(e) => e.target.style.background = 'var(--bg-accent)'}
-              onMouseLeave={(e) => e.target.style.background = 'var(--surface-1)'}
-            >
-              <div style={{ fontSize: '28px', marginBottom: '0.5rem' }}>
-                {ctx.nombre.split(' ')[0]}
-              </div>
-              <div style={{ fontSize: '12px', fontWeight: 500 }}>
-                {ctx.nombre.substring(2)}
-              </div>
-            </button>
+            />
           ))}
         </div>
-      </div>
-    )
-  }
 
-  // ═══════════════════════════════════════════════════════════
-  // STEP 2: CUSTOMIZE MESSAGE
-  // ═══════════════════════════════════════════════════════════
-
-  if (step === 'mensaje' && selectedContext) {
-    return (
-      <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-        <button
-          onClick={() => setStep('contexto')}
-          style={{
-            marginBottom: '1rem',
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--fill-accent)',
-            cursor: 'pointer',
-            fontWeight: 600
-          }}
-        >
-          ← Cambiar contexto
-        </button>
-
-        <h1 style={{ fontSize: '28px', fontWeight: 600, marginBottom: '1rem' }}>
-          {selectedContext.nombre}
-        </h1>
-
-        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-          Personaliza el primer mensaje que recibirá tu contacto al aceptar la invitación.
-        </p>
-
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{
-            display: 'block',
-            fontSize: '13px',
-            fontWeight: 600,
-            marginBottom: '0.5rem',
-            color: 'var(--text-secondary)'
-          }}>
-            Primer mensaje
-          </label>
-          <textarea
-            value={firstMessage}
-            onChange={(e) => setFirstMessage(e.target.value)}
+        {/* Error */}
+        {error && (
+          <div
             style={{
-              width: '100%',
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: '12px',
               padding: '12px',
-              border: '0.5px solid var(--border)',
-              borderRadius: '8px',
-              fontSize: '14px',
-              outline: 'none',
-              background: 'var(--surface-2)',
-              color: 'var(--text-primary)',
-              fontFamily: 'inherit',
-              minHeight: '100px',
-              resize: 'vertical'
+              marginBottom: '16px',
+              fontSize: '13px',
+              color: '#dc2626'
             }}
-          />
-          <div style={{
-            fontSize: '12px',
-            color: 'var(--text-muted)',
-            marginTop: '0.5rem'
-          }}>
-            {firstMessage.length}/500 caracteres
+          >
+            {error}
           </div>
-        </div>
+        )}
 
-        {/* PREVIEW */}
-        <div style={{
-          background: 'var(--surface-1)',
-          borderRadius: '12px',
-          padding: '1rem',
-          marginBottom: '2rem'
-        }}>
-          <div style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            color: 'var(--text-secondary)',
-            marginBottom: '0.5rem'
-          }}>
-            Vista previa:
-          </div>
-          <div style={{
-            background: 'var(--surface-0)',
-            borderRadius: '8px',
-            padding: '1rem',
-            borderLeft: '4px solid var(--fill-accent)'
-          }}>
-            <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '0.5rem' }}>
-              {userProfile.nombre}
-            </div>
-            <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.5' }}>
-              {firstMessage}
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={handleGenerateInvitation}
-          disabled={loading || !firstMessage.trim()}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: 'var(--fill-accent)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: (loading || !firstMessage.trim()) ? 0.6 : 1
-          }}
-        >
-          {loading ? 'Generando liga...' : '🔗 Generar Liga'}
-        </button>
-      </div>
-    )
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // STEP 3: SHARE
-  // ═══════════════════════════════════════════════════════════
-
-  if (step === 'compartir' && invitationLink) {
-    return (
-      <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 600, marginBottom: '1rem' }}>
-          🎉 ¡Liga lista!
-        </h1>
-
-        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '2rem' }}>
-          Comparte este link con {selectedContext.nombre}. No necesita instalar nada.
-        </p>
-
-        {/* LINK DISPLAY */}
-        <div style={{
-          background: 'var(--surface-1)',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-            Tu link:
-          </div>
-          <div style={{
-            fontSize: '16px',
-            fontWeight: 600,
-            color: 'var(--fill-accent)',
-            fontFamily: 'monospace',
-            wordBreak: 'break-all',
-            backgroundColor: 'var(--surface-0)',
-            padding: '1rem',
-            borderRadius: '8px',
-            marginBottom: '0.5rem'
-          }}>
-            {invitationLink.url}
-          </div>
-        </div>
-
-        {/* SHARE BUTTONS */}
-        <div style={{ marginBottom: '2rem' }}>
-          <label style={{
-            display: 'block',
-            fontSize: '13px',
-            fontWeight: 600,
-            marginBottom: '1rem',
-            color: 'var(--text-secondary)'
-          }}>
-            Compartir en:
-          </label>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-            gap: '8px'
-          }}>
-            {SHARE_CHANNELS.map(channel => (
+        {/* Step 1: Context Selection */}
+        {step === 'contexto' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+            {CONTEXTOS.map((contexto) => (
               <button
-                key={channel.id}
-                onClick={() => handleShare(channel.id)}
+                key={contexto.id}
+                onClick={() => handleContextSelect(contexto)}
                 style={{
-                  padding: '12px',
-                  background: 'var(--surface-1)',
-                  border: '0.5px solid var(--border)',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
+                  padding: '16px',
+                  background: 'white',
+                  border: '2px solid rgba(0,0,0,0.1)',
+                  borderRadius: '12px',
+                  fontSize: '14px',
                   fontWeight: 600,
-                  transition: 'all 0.2s'
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  textAlign: 'center'
                 }}
-                onMouseEnter={(e) => e.target.style.background = 'var(--bg-accent)'}
-                onMouseLeave={(e) => e.target.style.background = 'var(--surface-1)'}
+                onMouseEnter={(e) => {
+                  e.target.style.borderColor = 'var(--fill-accent)'
+                  e.target.style.background = 'rgba(0,82,204,0.05)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.borderColor = 'rgba(0,0,0,0.1)'
+                  e.target.style.background = 'white'
+                }}
               >
-                <div style={{ fontSize: '20px', marginBottom: '0.25rem' }}>
-                  {channel.icon}
-                </div>
-                <div>{channel.name}</div>
+                {contexto.nombre}
               </button>
             ))}
           </div>
-        </div>
+        )}
 
-        {/* INFO MESSAGE */}
-        <div style={{
-          background: 'var(--bg-accent)',
-          borderRadius: '8px',
-          padding: '1rem',
-          marginBottom: '2rem',
-          fontSize: '13px',
-          color: 'var(--text-accent)'
-        }}>
-          <strong>Qué sucede cuando hagan clic:</strong><br/>
-          1. No necesitan instalar nada<br/>
-          2. Ven tu nombre y contexto<br/>
-          3. Eligen su idioma<br/>
-          4. Ven tu primer mensaje<br/>
-          5. Comienza la conversación
-        </div>
+        {/* Step 2: Customize Message */}
+        {step === 'mensaje' && (
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '12px', color: 'var(--text)' }}>
+              Tu Mensaje Inicial
+            </label>
+            <textarea
+              value={firstMessage}
+              onChange={(e) => handleMessageChange(e.target.value)}
+              style={{
+                width: '100%',
+                minHeight: '120px',
+                padding: '14px',
+                border: '1px solid rgba(0,0,0,0.1)',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                marginBottom: '8px'
+              }}
+            />
+            <div style={{ fontSize: '12px', color: 'rgba(26,26,26,0.6)', textAlign: 'right' }}>
+              {firstMessage.length} / 500 caracteres
+            </div>
+          </div>
+        )}
 
-        <button
-          onClick={() => setStep('contexto')}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: 'transparent',
-            color: 'var(--fill-accent)',
-            border: '2px solid var(--fill-accent)',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: 'pointer'
-          }}
-        >
-          Crear otra liga
-        </button>
+        {/* Step 3: Share */}
+        {step === 'compartir' && invitationData && (
+          <div>
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px', color: 'var(--text)' }}>
+                Tu Liga está Lista
+              </div>
+              <div
+                style={{
+                  background: 'white',
+                  border: '2px solid var(--fill-accent)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  marginBottom: '12px',
+                  textAlign: 'center'
+                }}
+              >
+                <div style={{ fontSize: '48px', marginBottom: '8px' }}>🎉</div>
+                <div style={{ fontSize: '12px', color: 'rgba(26,26,26,0.6)', marginBottom: '12px' }}>
+                  ID: {invitationData.invitacion_id}
+                </div>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fill-accent)', marginBottom: '12px' }}>
+                  Comparte este link:
+                </div>
+                <div
+                  style={{
+                    background: 'var(--cream)',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontSize: '11px',
+                    wordBreak: 'break-all',
+                    fontFamily: 'monospace'
+                  }}
+                >
+                  {invitationData.url}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px', color: 'var(--text)' }}>
+                Canales de Compartir
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px' }}>
+                {SHARE_CHANNELS.map((channel) => (
+                  <button
+                    key={channel.id}
+                    onClick={() => handleShare(channel.id)}
+                    style={{
+                      padding: '12px',
+                      background: 'white',
+                      border: '1px solid rgba(0,0,0,0.1)',
+                      borderRadius: '10px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'var(--cream)'
+                      e.target.style.borderColor = 'var(--fill-accent)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'white'
+                      e.target.style.borderColor = 'rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {channel.icon} {channel.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setStep('resultado')}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'var(--fill-accent)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => (e.target.style.opacity = '0.9')}
+              onMouseLeave={(e) => (e.target.style.opacity = '1')}
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
+
+        {/* Step 4: Result */}
+        {step === 'resultado' && invitationData && (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
+            <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: 'var(--text)' }}>
+              ¡Liga Creada!
+            </div>
+            <div style={{ fontSize: '14px', color: 'rgba(26,26,26,0.6)', marginBottom: '24px', lineHeight: 1.6 }}>
+              Esperando que alguien acepte tu invitación...
+              <br />
+              Puedes crear más ligas o ir al dashboard.
+            </div>
+            <button
+              onClick={handleFinish}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'var(--fill-accent)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Ir al Dashboard
+            </button>
+          </div>
+        )}
+
+        {/* Navigation buttons */}
+        {step !== 'resultado' && (
+          <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
+            <button
+              onClick={() => {
+                if (step === 'contexto') navigate('/dashboard')
+                else if (step === 'mensaje') setStep('contexto')
+                else if (step === 'compartir') setStep('mensaje')
+              }}
+              style={{
+                flex: 1,
+                padding: '12px',
+                border: '1px solid rgba(0,0,0,0.1)',
+                background: 'transparent',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => (e.target.style.background = 'var(--cream)')}
+              onMouseLeave={(e) => (e.target.style.background = 'transparent')}
+            >
+              {step === 'contexto' ? 'Cancelar' : 'Atrás'}
+            </button>
+            {step === 'mensaje' && (
+              <button
+                onClick={handleGenerateInvitation}
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: loading ? 'rgba(0,82,204,0.5)' : 'var(--fill-accent)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}
+                onMouseEnter={(e) => !loading && (e.target.style.opacity = '0.9')}
+                onMouseLeave={(e) => !loading && (e.target.style.opacity = '1')}
+              >
+                {loading ? 'Creando...' : 'Generar Liga'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
-    )
-  }
-
-  return null
+    </div>
+  )
 }
