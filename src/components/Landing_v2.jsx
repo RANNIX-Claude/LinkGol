@@ -404,6 +404,418 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* SECTION 2A: CHAT EXAMPLE - La Traducción es 100% Invisible */}
+      <section style={{
+        background: 'var(--cream)',
+        padding: '100px 24px',
+        position: 'relative'
+      }}>
+        <div style={{
+          maxWidth: '1100px',
+          margin: '0 auto'
+        }}>
+          <h2 style={{
+            textAlign: 'center',
+            fontSize: 'clamp(32px, 5vw, 52px)',
+            fontWeight: 700,
+            letterSpacing: '-1.5px',
+            marginBottom: '16px'
+          }}>
+            La Traducción es 100% Invisible
+          </h2>
+          <p style={{
+            textAlign: 'center',
+            fontSize: '18px',
+            color: 'rgba(26,26,26,0.6)',
+            maxWidth: '600px',
+            margin: '0 auto 64px',
+            lineHeight: 1.6
+          }}>
+            Cada usuario ve mensajes en su propio idioma, sin botones, sin fricción, sin instalar nada.
+          </p>
+
+          {/* Two-column chat example */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '40px',
+            alignItems: 'start'
+          }}>
+            {/* Roberto (Spanish) */}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)', marginBottom: '20px' }}>
+                Roberto de México 🇲🇽
+              </div>
+              <div style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '20px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}>
+                {/* Roberto's message bubble (sent) */}
+                <div style={{
+                  background: 'var(--primary)',
+                  color: 'white',
+                  padding: '12px 16px',
+                  borderRadius: '20px 4px 20px 20px',
+                  marginBottom: '12px',
+                  display: 'inline-block',
+                  maxWidth: '85%',
+                  fontSize: '14px',
+                  lineHeight: 1.5
+                }}>
+                  Hola Ana, ¿cómo estás?
+                </div>
+
+                {/* Anna's message bubble (received, in Spanish for Roberto) */}
+                <div style={{
+                  background: 'var(--cream2)',
+                  color: 'var(--text)',
+                  padding: '12px 16px',
+                  borderRadius: '4px 20px 20px 20px',
+                  marginBottom: '12px',
+                  display: 'inline-block',
+                  maxWidth: '85%',
+                  fontSize: '14px',
+                  lineHeight: 1.5
+                }}>
+                  ¡Muy bien, gracias! ¿Y tú?
+                </div>
+
+                {/* Roberto's response */}
+                <div style={{
+                  background: 'var(--primary)',
+                  color: 'white',
+                  padding: '12px 16px',
+                  borderRadius: '20px 4px 20px 20px',
+                  display: 'inline-block',
+                  maxWidth: '85%',
+                  fontSize: '14px',
+                  lineHeight: 1.5
+                }}>
+                  Excelente, adelante! 🚀
+                </div>
+              </div>
+            </div>
+
+            {/* Anna (Russian) */}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)', marginBottom: '20px' }}>
+                Anna de Rusia 🇷🇺
+              </div>
+              <div style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '20px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}>
+                {/* Anna's message (sent, in Russian) */}
+                <div style={{
+                  background: 'var(--primary)',
+                  color: 'white',
+                  padding: '12px 16px',
+                  borderRadius: '20px 4px 20px 20px',
+                  marginBottom: '12px',
+                  display: 'inline-block',
+                  maxWidth: '85%',
+                  fontSize: '14px',
+                  lineHeight: 1.5
+                }}>
+                  Привет Роберто, я в порядке 👋
+                </div>
+
+                {/* Roberto's message (received, in Russian for Anna) */}
+                <div style={{
+                  background: 'var(--cream2)',
+                  color: 'var(--text)',
+                  padding: '12px 16px',
+                  borderRadius: '4px 20px 20px 20px',
+                  marginBottom: '12px',
+                  display: 'inline-block',
+                  maxWidth: '85%',
+                  fontSize: '14px',
+                  lineHeight: 1.5
+                }}>
+                  Замечательно, давайте начинать! 🚀
+                </div>
+
+                {/* Anna's response */}
+                <div style={{
+                  background: 'var(--primary)',
+                  color: 'white',
+                  padding: '12px 16px',
+                  borderRadius: '20px 4px 20px 20px',
+                  display: 'inline-block',
+                  maxWidth: '85%',
+                  fontSize: '14px',
+                  lineHeight: 1.5
+                }}>
+                  Отлично! 💪
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Key insight badge */}
+          <div style={{
+            maxWidth: '800px',
+            margin: '60px auto 0',
+            padding: '24px',
+            background: 'white',
+            borderRadius: '16px',
+            border: '2px solid var(--fill-accent)',
+            textAlign: 'center',
+            boxShadow: '0 4px 12px rgba(0,82,204,0.1)'
+          }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fill-accent)', marginBottom: '8px' }}>
+              ✨ SIN FRICCIÓN
+            </div>
+            <div style={{ fontSize: '16px', color: 'var(--text)', lineHeight: 1.6 }}>
+              No hay botones de "traducir". No hay indicadores visibles. Solo un chat natural donde cada persona habla su idioma.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2B: EXPERIENCIA HIPERRREALISTA - Two phones mockup */}
+      <section style={{
+        background: 'var(--fill-accent)',
+        padding: '100px 24px',
+        position: 'relative',
+        color: 'white'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
+          <h2 style={{
+            textAlign: 'center',
+            fontSize: 'clamp(32px, 5vw, 52px)',
+            fontWeight: 700,
+            letterSpacing: '-1.5px',
+            marginBottom: '16px'
+          }}>
+            La Experiencia Hiperrrealista
+          </h2>
+          <p style={{
+            textAlign: 'center',
+            fontSize: '18px',
+            color: 'rgba(255,255,255,0.82)',
+            maxWidth: '600px',
+            margin: '0 auto 64px',
+            lineHeight: 1.6
+          }}>
+            Dos teléfonos, mismo mensaje, cada uno en su idioma. El contacto percibe un nativo hablando.
+          </p>
+
+          {/* Two phones side-by-side with annotations */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '60px',
+            alignItems: 'center',
+            position: 'relative',
+            marginBottom: '60px'
+          }}>
+            {/* Phone 1 - Remitente (Spanish) */}
+            <div style={{ textAlign: 'center', position: 'relative' }}>
+              {/* Phone frame with content */}
+              <div style={{
+                width: '100%',
+                maxWidth: '280px',
+                margin: '0 auto',
+                background: 'white',
+                borderRadius: '40px',
+                overflow: 'hidden',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                border: '12px solid #1a1a1a',
+                transform: 'rotate(-5deg)',
+                position: 'relative'
+              }}>
+                {/* Notch */}
+                <div style={{
+                  height: '24px',
+                  background: '#1a1a1a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <div style={{ width: '100px', height: '5px', background: '#333', borderRadius: '10px' }}></div>
+                </div>
+                {/* Screen content */}
+                <div style={{ padding: '16px', background: 'white', height: '360px', overflow: 'hidden' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a', marginBottom: '16px' }}>
+                    LinkN.click
+                  </div>
+                  <div style={{
+                    background: 'var(--fill-accent)',
+                    color: 'white',
+                    padding: '10px 14px',
+                    borderRadius: '18px 4px 18px 18px',
+                    marginBottom: '8px',
+                    fontSize: '13px',
+                    display: 'inline-block',
+                    maxWidth: '80%'
+                  }}>
+                    Hola Anna, tengo un auto
+                  </div>
+                  <div style={{
+                    background: 'var(--cream2)',
+                    color: '#1a1a1a',
+                    padding: '10px 14px',
+                    borderRadius: '4px 18px 18px 18px',
+                    fontSize: '13px',
+                    display: 'inline-block',
+                    maxWidth: '80%'
+                  }}>
+                    ¿Te interesa?
+                  </div>
+                </div>
+              </div>
+
+              {/* Annotation: Remitente */}
+              <div style={{
+                marginTop: '20px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'white',
+                opacity: 0.9
+              }}>
+                Remitente (Roberto)<br/>
+                Escribe en Español 🇲🇽
+              </div>
+            </div>
+
+            {/* Phone 2 - Receptor (Russian) */}
+            <div style={{ textAlign: 'center', position: 'relative' }}>
+              {/* Phone frame with content */}
+              <div style={{
+                width: '100%',
+                maxWidth: '280px',
+                margin: '0 auto',
+                background: 'white',
+                borderRadius: '40px',
+                overflow: 'hidden',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                border: '12px solid #1a1a1a',
+                transform: 'rotate(5deg)',
+                position: 'relative'
+              }}>
+                {/* Notch */}
+                <div style={{
+                  height: '24px',
+                  background: '#1a1a1a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <div style={{ width: '100px', height: '5px', background: '#333', borderRadius: '10px' }}></div>
+                </div>
+                {/* Screen content */}
+                <div style={{ padding: '16px', background: 'white', height: '360px', overflow: 'hidden' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a', marginBottom: '16px' }}>
+                    LinkN.click
+                  </div>
+                  <div style={{
+                    background: 'var(--fill-accent)',
+                    color: 'white',
+                    padding: '10px 14px',
+                    borderRadius: '18px 4px 18px 18px',
+                    marginBottom: '8px',
+                    fontSize: '13px',
+                    display: 'inline-block',
+                    maxWidth: '80%'
+                  }}>
+                    Привет Анна, у меня есть машина
+                  </div>
+                  <div style={{
+                    background: 'var(--cream2)',
+                    color: '#1a1a1a',
+                    padding: '10px 14px',
+                    borderRadius: '4px 18px 18px 18px',
+                    fontSize: '13px',
+                    display: 'inline-block',
+                    maxWidth: '80%'
+                  }}>
+                    Вам интересно?
+                  </div>
+                </div>
+              </div>
+
+              {/* Annotation: Receptor */}
+              <div style={{
+                marginTop: '20px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'white',
+                opacity: 0.9
+              }}>
+                Receptor (Anna)<br/>
+                Lee en Ruso 🇷🇺
+              </div>
+            </div>
+          </div>
+
+          {/* Three callout boxes */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px'
+          }}>
+            {/* Callout 1: 100% Invisible */}
+            <div style={{
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: '16px',
+              padding: '24px',
+              border: '1px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ fontSize: '24px', marginBottom: '12px' }}>👻</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px' }}>
+                100% Invisible
+              </div>
+              <div style={{ fontSize: '14px', lineHeight: 1.6, opacity: 0.9 }}>
+                Sin botones de "traducir" ni indicadores visibles de inteligencia artificial
+              </div>
+            </div>
+
+            {/* Callout 2: Cero Fricción */}
+            <div style={{
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: '16px',
+              padding: '24px',
+              border: '1px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ fontSize: '24px', marginBottom: '12px' }}>⚡</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px' }}>
+                Cero Fricción
+              </div>
+              <div style={{ fontSize: '14px', lineHeight: 1.6, opacity: 0.9 }}>
+                Sin instalación, sin configuración, sin cuenta. Solo un link o código QR
+              </div>
+            </div>
+
+            {/* Callout 3: Nativo */}
+            <div style={{
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: '16px',
+              padding: '24px',
+              border: '1px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ fontSize: '24px', marginBottom: '12px' }}>🎭</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px' }}>
+                Nativo
+              </div>
+              <div style={{ fontSize: '14px', lineHeight: 1.6, opacity: 0.9 }}>
+                El usuario percibe que habla con un nativo de su idioma. Conexión más profunda.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PRINCIPLE */}
       <section style={{
         background: 'var(--cream)',
