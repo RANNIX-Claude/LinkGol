@@ -1230,7 +1230,7 @@ export default function Landing() {
           No necesitas tarjeta de crédito. Sin instalación. Comienza en 30 segundos.
         </p>
         <button
-          onClick={onSignUp}
+          onClick={() => navigate('/auth/signup')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',

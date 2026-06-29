@@ -562,7 +562,12 @@ async function auth_signup(body) {
 
     if (dbError) {
       console.error('Database error:', dbError)
-      return { statusCode: 400, body: JSON.stringify({ error: dbError.message || 'Error creating user' }) }
+      return { statusCode: 400, body: JSON.stringify({ error: `Supabase error: ${dbError.message || 'Error creating user'}`, details: dbError }) }
+    }
+
+    if (!user) {
+      console.error('No user returned from insert')
+      return { statusCode: 400, body: JSON.stringify({ error: 'User creation failed - no data returned' }) }
     }
 
     // Generate token for session
