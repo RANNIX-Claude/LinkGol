@@ -1,6 +1,20 @@
 // Stripe payment integration for LinkN.click
+import { loadStripe as stripeLoadFunction } from '@stripe/stripe-js'
 
-const STRIPE_PUBLIC_KEY = process.env.VITE_STRIPE_PUBLIC_KEY
+const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY
+
+if (!STRIPE_PUBLIC_KEY) {
+  console.warn('⚠️ VITE_STRIPE_PUBLIC_KEY not configured in Netlify environment')
+}
+
+// Load Stripe.js singleton
+let stripePromise = null
+const getStripe = () => {
+  if (!stripePromise && STRIPE_PUBLIC_KEY) {
+    stripePromise = stripeLoadFunction(STRIPE_PUBLIC_KEY)
+  }
+  return stripePromise
+}
 
 export const createCheckoutSession = async (userId, plan = 'monthly') => {
   try {
@@ -14,8 +28,11 @@ export const createCheckoutSession = async (userId, plan = 'monthly') => {
     const { sessionId } = await response.json()
 
     // Redirect to Stripe Checkout
-    const stripe = await loadStripe(STRIPE_PUBLIC_KEY)
-    await stripe.redirectToCheckout({ sessionId })
+    const stripe = await getStripe()
+    if (!stripe) throw new Error('Stripe not initialized')
+
+    const { error } = await stripe.redirectToCheckout({ sessionId })
+    if (error) throw error
   } catch (err) {
     console.error('Stripe error:', err)
     throw err
@@ -44,13 +61,4 @@ export const cancelSubscription = async (userId) => {
     console.error('Error canceling subscription:', err)
     throw err
   }
-}
-
-// Load Stripe.js
-const stripePromise = typeof window !== 'undefined' 
-  ? import('@stripe/stripe-js').then(m => m.loadStripe(STRIPE_PUBLIC_KEY))
-  : Promise.resolve(null)
-
-export const loadStripe = async () => {
-  return await stripePromise
 }
