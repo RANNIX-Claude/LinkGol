@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import AudioRecorder from './AudioRecorder'
 
 export default function LinkChat() {
   const { conversacionId } = useParams()
@@ -224,7 +225,8 @@ export default function LinkChat() {
           padding: '12px 16px',
           background: 'white',
           borderTop: '1px solid rgba(0,0,0,0.1)',
-          boxShadow: '0 -2px 8px rgba(0,0,0,0.04)'
+          boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+          alignItems: 'flex-end'
         }}
       >
         <textarea
@@ -251,6 +253,7 @@ export default function LinkChat() {
           onFocus={(e) => (e.target.style.borderColor = 'var(--fill-accent)')}
           onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,0.1)')}
         />
+        <AudioRecorder onAudioSend={(blob) => console.log('Audio:', blob)} disabled={loading} />
         <button
           type="submit"
           disabled={loading}
