@@ -17,12 +17,11 @@
   publish = "dist"
   # Dev branch will NOT auto-deploy (manual deployment only)
 
-# SPA fallback (catches everything else EXCEPT static assets and functions)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {NOT_path = ["/.netlify/*", "/assets/*", "/*.css", "/*.js", "/*.json"]}
+  force = false
 
 [env]
   [env.production]
