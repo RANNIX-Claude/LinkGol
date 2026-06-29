@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-export default function Landing({ onSignUp, onLogin }) {
+export default function Landing() {
   const [scrollY, setScrollY] = useState(0)
+  const navigate = useNavigate()
 
   React.useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -87,7 +89,7 @@ export default function Landing({ onSignUp, onLogin }) {
           </div>
 
           <button
-            onClick={onSignUp}
+            onClick={() => navigate('/auth/signup')}
             style={{
               background: 'var(--fill-accent)',
               color: 'white',
@@ -181,7 +183,7 @@ export default function Landing({ onSignUp, onLogin }) {
           marginBottom: '72px'
         }}>
           <button
-            onClick={onSignUp}
+            onClick={() => navigate('/auth/signup')}
             style={{
               background: 'white',
               color: 'var(--fill-accent)',
@@ -202,7 +204,7 @@ export default function Landing({ onSignUp, onLogin }) {
             🚀 Crear Cuenta Gratis
           </button>
           <button
-            onClick={onLogin}
+            onClick={() => navigate('/auth/signup')}
             style={{
               background: 'transparent',
               color: 'white',
