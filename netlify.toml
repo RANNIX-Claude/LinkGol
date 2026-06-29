@@ -26,18 +26,18 @@
 
 [env]
   [env.production]
-    # Frontend variables
+    # Frontend variables (anon key - public)
     VITE_SUPABASE_URL = "https://xeypxgwbhpvxifiwmztk.supabase.co"
     VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTUyMjUsImV4cCI6MjA5ODE5MTIyNX0.BBv9ikI1qeZ8U1_smXPppyNH-EIGpwotrX-THbWttIo"
     VITE_GOOGLE_MAPS_KEY = ""
-    # Backend variables for Netlify Functions
+    # Backend variables for Netlify Functions (service_role key - private)
     SUPABASE_URL = "https://xeypxgwbhpvxifiwmztk.supabase.co"
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTUyMjUsImV4cCI6MjA5ODE5MTIyNX0.BBv9ikI1qeZ8U1_smXPppyNH-EIGpwotrX-THbWttIo"
+    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjYxNTIyNSwiZXhwIjoyMDk4MTkxMjI1fQ.rcwweM8laaq55ocADe5A4qYAHbFXrhIlFCQ-AtvvEhE"
 
   [env.development]
-    # Frontend variables
+    # Frontend variables (anon key - public)
     VITE_SUPABASE_URL = "https://xeypxgwbhpvxifiwmztk.supabase.co"
     VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTUyMjUsImV4cCI6MjA5ODE5MTIyNX0.BBv9ikI1qeZ8U1_smXPppyNH-EIGpwotrX-THbWttIo"
-    # Backend variables for Netlify Functions
+    # Backend variables for Netlify Functions (service_role key - private)
     SUPABASE_URL = "https://xeypxgwbhpvxifiwmztk.supabase.co"
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTUyMjUsImV4cCI6MjA5ODE5MTIyNX0.BBv9ikI1qeZ8U1_smXPppyNH-EIGpwotrX-THbWttIo"
+    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleXB4Z3diaHB2eGlmaXdtenRrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjYxNTIyNSwiZXhwIjoyMDk4MTkxMjI1fQ.rcwweM8laaq55ocADe5A4qYAHbFXrhIlFCQ-AtvvEhE"
