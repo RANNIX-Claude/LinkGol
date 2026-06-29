@@ -99,6 +99,20 @@ exports.handler = async (event, context) => {
       }
     }
 
+    // ============================================================
+    // MESSAGES API
+    // ============================================================
+
+    if (path.includes('/messages') || path.includes('/mensajes')) {
+      if (httpMethod === 'POST') {
+        return await enviar_mensaje(body)
+      }
+      if (httpMethod === 'GET') {
+        const conversacion_id = path.split('/').slice(-1)[0]
+        return await obtener_mensajes(conversacion_id)
+      }
+    }
+
     return {
       statusCode: 404,
       body: JSON.stringify({ error: 'Endpoint not found' })
@@ -557,6 +571,108 @@ async function auth_signup(body) {
     }
   } catch (error) {
     console.error('auth_signup error:', error)
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
+  }
+}
+
+// ============================================================
+// MESSAGES FUNCTIONS
+// ============================================================
+
+async function enviar_mensaje(body) {
+  try {
+    const { conversacion_id, sender_id, sender_nombre, texto_original, idioma_original } = body
+
+    if (!conversacion_id || !sender_id || !texto_original || !idioma_original) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'Campos requeridos' }) }
+    }
+
+    // Get conversation to find recipient and their language
+    const { data: conversacion, error: convError } = await supabase
+      .from('conversaciones')
+      .select('*')
+      .eq('id', conversacion_id)
+      .single()
+
+    if (convError || !conversacion) {
+      return { statusCode: 404, body: JSON.stringify({ error: 'Conversación no encontrada' }) }
+    }
+
+    // Determine recipient and target language
+    const receptor_id = conversacion.participante_1 === sender_id ? conversacion.participante_2 : conversacion.participante_1
+    const idioma_receptor = conversacion.participante_1 === sender_id ? conversacion.idioma_p2 : conversacion.idioma_p1
+
+    // Translate message to recipient's language
+    const texto_traducido = await traducir_mensaje(texto_original, idioma_original, idioma_receptor)
+
+    // Store message with both versions
+    const { data: mensaje, error: msgError } = await supabase
+      .from('mensajes')
+      .insert([{
+        conversacion_id,
+        sender_id,
+        sender_nombre,
+        tipo_mensaje: 'TEXT',
+        texto_original,
+        idioma_original,
+        traducciones: JSON.stringify({
+          [idioma_original]: texto_original,
+          [idioma_receptor]: texto_traducido
+        }),
+        es_traducido: idioma_original !== idioma_receptor
+      }])
+      .select()
+      .single()
+
+    if (msgError) throw msgError
+
+    return {
+      statusCode: 201,
+      body: JSON.stringify({
+        id: mensaje.id,
+        sender_id: mensaje.sender_id,
+        sender_nombre: mensaje.sender_nombre,
+        texto_original: mensaje.texto_original,
+        idioma_original: mensaje.idioma_original,
+        traducciones: JSON.parse(mensaje.traducciones),
+        es_traducido: mensaje.es_traducido,
+        timestamp: mensaje.created_at
+      })
+    }
+  } catch (error) {
+    console.error('enviar_mensaje error:', error)
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
+  }
+}
+
+async function obtener_mensajes(conversacion_id) {
+  try {
+    const { data: mensajes, error } = await supabase
+      .from('mensajes')
+      .select('*')
+      .eq('conversacion_id', conversacion_id)
+      .order('created_at', { ascending: true })
+
+    if (error) throw error
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        total: mensajes.length,
+        mensajes: mensajes.map(m => ({
+          id: m.id,
+          sender_id: m.sender_id,
+          sender_nombre: m.sender_nombre,
+          texto_original: m.texto_original,
+          idioma_original: m.idioma_original,
+          traducciones: typeof m.traducciones === 'string' ? JSON.parse(m.traducciones) : m.traducciones,
+          es_traducido: m.es_traducido,
+          timestamp: m.created_at
+        }))
+      })
+    }
+  } catch (error) {
+    console.error('obtener_mensajes error:', error)
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }

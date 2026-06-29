@@ -1,32 +1,42 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
-export default function LinkChat({ conversacion, usuario, onExit }) {
+export default function LinkChat() {
+  const { conversacionId } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
   const [mensajes, setMensajes] = useState([])
   const [inputValue, setInputValue] = useState('')
   const [loading, setLoading] = useState(false)
   const [otroUsuarioEscribiendo, setOtroUsuarioEscribiendo] = useState(false)
-  const [verOriginal, setVerOriginal] = useState(null) // ID del mensaje para ver original
+  const [verOriginal, setVerOriginal] = useState(null)
   const messagesEndRef = useRef(null)
 
-  // Mock: cargar mensajes iniciales
+  if (!user) {
+    return <div>Redirigiendo...</div>
+  }
+
+  // Load initial messages
   useEffect(() => {
+    // Mock: initial message
     const mockMensajes = [
       {
-        id: `msg-1`,
-        sender_id: 'user-remitente',
-        sender_nombre: 'Roberto Aguilar',
-        es_primer_mensaje: true,
-        tipo: 'TEXT',
-        texto_original: 'Hola, tengo un auto que te va a encanta. Es modelo 2023, muy bien cuidado. ¿Te interesa?',
+        id: 'msg-1',
+        sender_id: 'other-user',
+        sender_nombre: 'Roberto',
+        texto_original: 'Hola, ¿cómo estás?',
         idioma_original: 'es',
-        texto_usuario: 'Hello, I have a car that you will love. 2023 model, very well maintained. Are you interested?', // traducción al idioma del usuario
-        timestamp: new Date(Date.now() - 5 * 60 * 1000)
+        texto_usuario: user.idioma === 'es' ? 'Hola, ¿cómo estás?' : 'Hello, how are you?',
+        timestamp: new Date(Date.now() - 5 * 60 * 1000),
+        es_traducido: user.idioma !== 'es'
       }
     ]
     setMensajes(mockMensajes)
-  }, [])
+  }, [user.idioma])
 
-  // Auto-scroll a nuevo mensaje
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [mensajes])
@@ -35,378 +45,232 @@ export default function LinkChat({ conversacion, usuario, onExit }) {
     e.preventDefault()
     if (!inputValue.trim()) return
 
-    setLoading(true)
     const nuevoMensaje = {
       id: `msg-${Date.now()}`,
-      sender_id: usuario.id,
-      sender_nombre: usuario.nombre,
-      es_primer_mensaje: false,
-      tipo: 'TEXT',
+      sender_id: user.id,
+      sender_nombre: user.nombre,
       texto_original: inputValue,
-      idioma_original: usuario.idioma,
-      texto_usuario: inputValue, // en su idioma
-      timestamp: new Date()
+      idioma_original: user.idioma,
+      texto_usuario: inputValue,
+      timestamp: new Date(),
+      es_traducido: false
     }
 
-    setMensajes([...mensajes, nuevoMensaje])
+    setMensajes((prev) => [...prev, nuevoMensaje])
     setInputValue('')
+    setLoading(true)
 
-    // TODO: Backend call to enviar_mensaje
-    // - POST /api/v2/mensajes
-    // - Obtiene traducción via Claude API
-    // - Guarda en BD
-    // - Emite via Supabase Realtime
+    try {
+      // TODO: POST /api/v2/mensajes
+      // - Send message to backend
+      // - Backend translates via Claude API
+      // - Broadcast via Supabase Realtime
 
-    setTimeout(() => {
-      // Mock: respuesta automática (para demostración)
-      if (Math.random() > 0.7) {
+      // For now: mock response
+      setTimeout(() => {
         const respuesta = {
           id: `msg-${Date.now() + 1}`,
-          sender_id: 'user-remitente',
-          sender_nombre: 'Roberto Aguilar',
-          es_primer_mensaje: false,
-          tipo: 'TEXT',
-          texto_original: 'Sí, el auto está disponible. ¿Quieres que te envíe las fotos?',
+          sender_id: 'other-user',
+          sender_nombre: 'Roberto',
+          texto_original: '¡Muy bien! ¿Y tú?',
           idioma_original: 'es',
-          texto_usuario: 'Yes, the car is available. Do you want me to send you the photos?',
-          timestamp: new Date()
+          texto_usuario: user.idioma === 'es' ? '¡Muy bien! ¿Y tú?' : 'Very well! And you?',
+          timestamp: new Date(),
+          es_traducido: user.idioma !== 'es'
         }
         setMensajes((prev) => [...prev, respuesta])
-      }
+        setLoading(false)
+      }, 1000)
+    } catch (err) {
+      console.error('Error sending message:', err)
       setLoading(false)
-    }, 800)
+    }
   }
 
-  const handleAudio = () => {
-    // TODO: PROMPT C - Activar grabación de audio
-    // - Usar MediaRecorder API
-    // - Whisper STT para transcribir
-    // - Claude API para traducir
-    // - TTS para reproducir en idioma del contacto
-    alert('Audio (PROMPT C): Grabar mensaje de voz')
+  const handleExitChat = () => {
+    navigate('/dashboard')
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      background: 'var(--surface-0)',
-      overflow: 'hidden'
-    }}>
-      {/* HEADER */}
-      <div style={{
-        background: 'var(--surface-1)',
-        borderBottom: '0.5px solid var(--border)',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexShrink: 0
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-          <button
-            onClick={onExit}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--fill-accent)',
-              fontSize: '20px',
-              cursor: 'pointer'
-            }}
-          >
-            ←
-          </button>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-              Roberto Aguilar
-            </div>
-            <div style={{
-              fontSize: '11px',
-              color: 'var(--text-secondary)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              {otroUsuarioEscribiendo ? (
-                <>
-                  <span style={{
-                    display: 'inline-block',
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: 'var(--fill-accent)',
-                    animation: 'blink 1.4s infinite'
-                  }} />
-                  escribiendo...
-                </>
-              ) : (
-                '🟢 Online'
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              fontSize: '18px',
-              cursor: 'pointer'
-            }}
-          >
-            📞
-          </button>
-          <button
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              fontSize: '18px',
-              cursor: 'pointer'
-            }}
-          >
-            ⋮
-          </button>
-        </div>
-      </div>
-
-      {/* MESSAGES CONTAINER */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '16px',
+    <div
+      style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '12px'
-      }}>
-        {mensajes.map((msg) => {
-          const esDelUsuario = msg.sender_id === usuario.id
-          const mostrarOriginal = verOriginal === msg.id && !esDelUsuario && msg.idioma_original !== usuario.idioma
+        height: '100vh',
+        background: 'white',
+        fontFamily: "'DM Sans', sans-serif"
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          background: 'var(--fill-accent)',
+          color: 'white',
+          padding: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}
+      >
+        <div>
+          <div style={{ fontSize: '16px', fontWeight: 700 }}>Roberto</div>
+          <div style={{ fontSize: '12px', opacity: 0.8 }}>En línea</div>
+        </div>
+        <button
+          onClick={handleExitChat}
+          style={{
+            background: 'rgba(255,255,255,0.2)',
+            color: 'white',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => (e.target.style.background = 'rgba(255,255,255,0.3)')}
+          onMouseLeave={(e) => (e.target.style.background = 'rgba(255,255,255,0.2)')}
+        >
+          Salir
+        </button>
+      </div>
 
+      {/* Messages */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }}
+      >
+        {mensajes.map((msg) => {
+          const isSent = msg.sender_id === user.id
           return (
             <div
               key={msg.id}
               style={{
                 display: 'flex',
-                justifyContent: esDelUsuario ? 'flex-end' : 'flex-start',
-                marginBottom: '4px'
+                justifyContent: isSent ? 'flex-end' : 'flex-start',
+                marginBottom: '8px'
               }}
             >
-              <div style={{
-                maxWidth: '85%',
-                display: 'flex',
-                flexDirection: esDelUsuario ? 'row-reverse' : 'row',
-                gap: '8px',
-                alignItems: 'flex-end'
-              }}>
-                {/* AVATAR */}
-                {!esDelUsuario && (
-                  <div style={{
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '50%',
-                    background: 'var(--fill-accent)',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    flexShrink: 0
-                  }}>
-                    R
+              <div
+                style={{
+                  maxWidth: '70%',
+                  background: isSent ? 'var(--fill-accent)' : 'var(--cream2)',
+                  color: isSent ? 'white' : 'var(--text)',
+                  padding: '10px 14px',
+                  borderRadius: isSent ? '18px 4px 18px 18px' : '4px 18px 18px 18px',
+                  fontSize: '14px',
+                  lineHeight: 1.4,
+                  wordWrap: 'break-word'
+                }}
+              >
+                <div>{msg.texto_usuario}</div>
+                {msg.es_traducido && (
+                  <button
+                    onClick={() => setVerOriginal(verOriginal === msg.id ? null : msg.id)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: isSent ? 'rgba(255,255,255,0.7)' : 'var(--fill-accent)',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      marginTop: '4px',
+                      padding: 0,
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Ver original
+                  </button>
+                )}
+                {verOriginal === msg.id && msg.es_traducido && (
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      opacity: 0.7,
+                      marginTop: '4px',
+                      paddingTop: '4px',
+                      borderTop: `1px solid ${isSent ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)'}`
+                    }}
+                  >
+                    <div style={{ fontWeight: 600 }}>Original ({msg.idioma_original})</div>
+                    <div>{msg.texto_original}</div>
                   </div>
                 )}
-
-                {/* BUBBLE */}
-                <div
-                  style={{
-                    background: esDelUsuario ? 'var(--fill-accent)' : 'var(--surface-1)',
-                    color: esDelUsuario ? 'white' : 'var(--text-primary)',
-                    padding: '10px 14px',
-                    borderRadius: esDelUsuario ? '18px 2px 18px 18px' : '2px 18px 18px 18px',
-                    fontSize: '14px',
-                    lineHeight: 1.4,
-                    wordWrap: 'break-word',
-                    boxShadow: esDelUsuario ? 'none' : '0 1px 2px rgba(0,0,0,0.04)',
-                    position: 'relative'
-                  }}
-                >
-                  {msg.es_primer_mensaje && !esDelUsuario && (
-                    <div style={{
-                      fontSize: '10px',
-                      fontWeight: 600,
-                      opacity: 0.6,
-                      marginBottom: '4px',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      📌 Primer mensaje
-                    </div>
-                  )}
-
-                  <div>
-                    {msg.texto_usuario}
-                  </div>
-
-                  {/* VER ORIGINAL */}
-                  {!esDelUsuario && msg.idioma_original !== usuario.idioma && (
-                    <button
-                      onClick={() => setVerOriginal(verOriginal === msg.id ? null : msg.id)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: esDelUsuario ? 'white' : 'var(--text-secondary)',
-                        fontSize: '10px',
-                        opacity: 0.3,
-                        cursor: 'pointer',
-                        marginTop: '4px',
-                        textDecoration: 'underline',
-                        padding: 0
-                      }}
-                    >
-                      Ver original →
-                    </button>
-                  )}
-
-                  {/* ORIGINAL TEXT (expandido) */}
-                  {mostrarOriginal && (
-                    <div style={{
-                      marginTop: '8px',
-                      paddingTop: '8px',
-                      borderTop: `1px solid ${esDelUsuario ? 'rgba(255,255,255,0.2)' : 'var(--border)'}`,
-                      fontSize: '13px',
-                      opacity: 0.7,
-                      fontStyle: 'italic'
-                    }}>
-                      <div style={{
-                        fontSize: '10px',
-                        opacity: 0.5,
-                        marginBottom: '4px',
-                        textTransform: 'uppercase'
-                      }}>
-                        Español (original)
-                      </div>
-                      {msg.texto_original}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           )
         })}
-
-        {loading && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBottom: '4px'
-          }}>
-            <div style={{
-              background: 'var(--fill-accent)',
-              color: 'white',
-              padding: '10px 14px',
-              borderRadius: '18px 2px 18px 18px',
-              fontSize: '14px'
-            }}>
-              <span style={{
-                display: 'inline-block',
-                animation: 'blink 1.4s infinite'
-              }}>
-                ⟳
-              </span>
-            </div>
+        {otroUsuarioEscribiendo && (
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text2)' }}>Escribiendo</span>
+            <span style={{ fontSize: '12px', animation: 'pulse 1.4s infinite' }}>●●●</span>
           </div>
         )}
-
         <div ref={messagesEndRef} />
       </div>
 
-      {/* INPUT AREA */}
-      <div style={{
-        background: 'var(--surface-1)',
-        borderTop: '0.5px solid var(--border)',
-        padding: '12px 16px',
-        display: 'flex',
-        gap: '8px',
-        alignItems: 'flex-end',
-        flexShrink: 0
-      }}>
-        <form
-          onSubmit={handleEnviarMensaje}
-          style={{ display: 'flex', gap: '8px', flex: 1, alignItems: 'flex-end' }}
-        >
-          <div style={{ flex: 1 }}>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe tu mensaje..."
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '0.5px solid var(--border)',
-                borderRadius: '20px',
-                fontSize: '14px',
-                outline: 'none',
-                background: 'var(--surface-2)',
-                color: 'var(--text-primary)',
-                fontFamily: 'inherit',
-                resize: 'none',
-                maxHeight: '80px'
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !inputValue.trim()}
-            style={{
-              background: inputValue.trim() ? 'var(--fill-accent)' : 'var(--border)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
-              fontSize: '16px',
-              flexShrink: 0,
-              transition: 'all 0.2s'
-            }}
-          >
-            ↑
-          </button>
-        </form>
-
-        <button
-          onClick={handleAudio}
+      {/* Input */}
+      <form
+        onSubmit={handleEnviarMensaje}
+        style={{
+          display: 'flex',
+          gap: '8px',
+          padding: '12px 16px',
+          background: 'white',
+          borderTop: '1px solid rgba(0,0,0,0.1)',
+          boxShadow: '0 -2px 8px rgba(0,0,0,0.04)'
+        }}
+      >
+        <textarea
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              handleEnviarMensaje(e)
+            }
+          }}
+          placeholder="Escribe tu mensaje..."
           style={{
-            background: 'transparent',
+            flex: 1,
+            padding: '10px 12px',
+            border: '1px solid rgba(0,0,0,0.1)',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontFamily: 'inherit',
+            resize: 'none',
+            maxHeight: '100px',
+            outline: 'none'
+          }}
+          onFocus={(e) => (e.target.style.borderColor = 'var(--fill-accent)')}
+          onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,0.1)')}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: loading ? 'rgba(0,82,204,0.5)' : 'var(--fill-accent)',
+            color: 'white',
             border: 'none',
-            color: 'var(--fill-accent)',
-            fontSize: '20px',
-            cursor: 'pointer',
-            padding: '0 4px'
+            fontSize: '18px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
-          🎤
+          →
         </button>
-      </div>
-
-      <style>{`
-        @keyframes blink {
-          0%, 20%, 50%, 80%, 100% { opacity: 1; }
-          40% { opacity: 0.5; }
-          60% { opacity: 0.5; }
-        }
-      `}</style>
+      </form>
     </div>
   )
 }
