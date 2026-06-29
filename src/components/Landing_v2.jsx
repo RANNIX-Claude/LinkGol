@@ -1256,47 +1256,84 @@ export default function Landing() {
       <footer style={{
         background: 'var(--text)',
         padding: '48px 24px',
-        color: 'rgba(255,255,255,0.5)'
+        color: 'rgba(255,255,255,0.5)',
+        borderTop: '1px solid rgba(255,255,255,0.1)'
       }}>
         <div style={{
           maxWidth: '1100px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px'
+          margin: '0 auto'
         }}>
+          {/* Footer Top */}
           <div style={{
-            fontSize: '22px',
-            fontWeight: 700,
-            color: 'white',
-            letterSpacing: '-1px'
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '32px',
+            paddingBottom: '32px',
+            marginBottom: '32px',
+            borderBottom: '1px solid rgba(255,255,255,0.1)'
           }}>
-            LinkN<span style={{ color: 'var(--fill-accent)' }}>.</span>click
+            {/* Logo + Brand */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <svg width="28" height="28" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="40" r="18" fill="none" stroke="#0891b2" strokeWidth="6" opacity="0.8"/>
+                <circle cx="70" cy="40" r="18" fill="none" stroke="#0052CC" strokeWidth="6" opacity="1"/>
+                <path d="M 35 40 Q 45 50 50 40 Q 55 30 65 40" fill="none" stroke="#0891b2" strokeWidth="3" strokeLinecap="round" opacity="0.9"/>
+              </svg>
+              <div style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                color: 'white',
+                letterSpacing: '-0.5px'
+              }}>
+                LinkN<span style={{ color: 'var(--fill-accent)' }}>.</span>click
+              </div>
+            </div>
+
+            {/* Links */}
+            <div style={{ display: 'flex', gap: '32px' }}>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
+                onMouseEnter={(e) => e.target.style.color = 'white'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.4)'}
+              >
+                Privacidad
+              </a>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
+                onMouseEnter={(e) => e.target.style.color = 'white'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.4)'}
+              >
+                Términos
+              </a>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
+                onMouseEnter={(e) => e.target.style.color = 'white'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.4)'}
+              >
+                Contacto
+              </a>
+              <a href="https://twitter.com/linkn" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
+                onMouseEnter={(e) => e.target.style.color = 'white'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.4)'}
+              >
+                Twitter
+              </a>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '24px' }}>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
-              onMouseEnter={(e) => e.target.style.color = 'white'}
-              onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.4)'}
-            >
-              Privacidad
-            </a>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
-              onMouseEnter={(e) => e.target.style.color = 'white'}
-              onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.4)'}
-            >
-              Términos
-            </a>
-            <a href="#" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
-              onMouseEnter={(e) => e.target.style.color = 'white'}
-              onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.4)'}
-            >
-              Contacto
-            </a>
-          </div>
-          <div style={{ fontSize: '13px' }}>
-            © 2026 LinkN.click. Comunicación universal, sin barreras.
+
+          {/* Footer Bottom */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+              © 2026 LinkN.click. Comunicación universal, sin barreras.
+            </div>
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>
+              Disponible en 10 idiomas 🌍
+            </div>
           </div>
         </div>
       </footer>
