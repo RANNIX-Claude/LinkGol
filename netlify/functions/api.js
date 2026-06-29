@@ -7,7 +7,14 @@
 const { createClient } = require('@supabase/supabase-js')
 const Anthropic = require('@anthropic-ai/sdk')
 const crypto = require('crypto')
-const Stripe = require('stripe').default || require('stripe')
+
+let Stripe
+try {
+  Stripe = require('stripe')
+} catch (err) {
+  console.warn('Stripe module not available')
+  Stripe = null
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -16,7 +23,14 @@ const supabase = createClient(
 
 const client = new Anthropic.default()
 
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
+let stripe = null
+try {
+  if (Stripe && process.env.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  }
+} catch (err) {
+  console.warn('Failed to initialize Stripe:', err.message)
+}
 
 /**
  * Handler principal
