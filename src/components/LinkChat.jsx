@@ -11,33 +11,37 @@ export default function LinkChat() {
   const [mensajes, setMensajes] = useState([])
   const [inputValue, setInputValue] = useState('')
   const [loading, setLoading] = useState(false)
-  const [otroUsuarioEscribiendo, setOtroUsuarioEscribiendo] = useState(false)
   const [verOriginal, setVerOriginal] = useState(null)
   const messagesEndRef = useRef(null)
 
-  if (!user) {
-    return <div>Redirigiendo...</div>
-  }
+  if (!user) return <div>Redirigiendo...</div>
 
-  // Load initial messages
   useEffect(() => {
-    // Mock: initial message
     const mockMensajes = [
       {
         id: 'msg-1',
-        sender_id: 'other-user',
+        sender_id: 'other',
         sender_nombre: 'Roberto',
         texto_original: 'Hola, ¿cómo estás?',
         idioma_original: 'es',
-        texto_usuario: user.idioma === 'es' ? 'Hola, ¿cómo estás?' : 'Hello, how are you?',
+        texto_usuario: 'Hola, ¿cómo estás?',
         timestamp: new Date(Date.now() - 5 * 60 * 1000),
-        es_traducido: user.idioma !== 'es'
+        es_traducido: false
+      },
+      {
+        id: 'msg-2',
+        sender_id: user.id,
+        sender_nombre: user.nombre,
+        texto_original: '¡Muy bien! ¿Y tú?',
+        idioma_original: user.idioma,
+        texto_usuario: '¡Muy bien! ¿Y tú?',
+        timestamp: new Date(Date.now() - 3 * 60 * 1000),
+        es_traducido: false
       }
     ]
     setMensajes(mockMensajes)
   }, [user.idioma])
 
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [mensajes])
@@ -61,93 +65,70 @@ export default function LinkChat() {
     setInputValue('')
     setLoading(true)
 
-    try {
-      // TODO: POST /api/v2/mensajes
-      // - Send message to backend
-      // - Backend translates via Claude API
-      // - Broadcast via Supabase Realtime
-
-      // For now: mock response
-      setTimeout(() => {
-        const respuesta = {
-          id: `msg-${Date.now() + 1}`,
-          sender_id: 'other-user',
-          sender_nombre: 'Roberto',
-          texto_original: '¡Muy bien! ¿Y tú?',
-          idioma_original: 'es',
-          texto_usuario: user.idioma === 'es' ? '¡Muy bien! ¿Y tú?' : 'Very well! And you?',
-          timestamp: new Date(),
-          es_traducido: user.idioma !== 'es'
-        }
-        setMensajes((prev) => [...prev, respuesta])
-        setLoading(false)
-      }, 1000)
-    } catch (err) {
-      console.error('Error sending message:', err)
+    setTimeout(() => {
+      const respuesta = {
+        id: `msg-${Date.now() + 1}`,
+        sender_id: 'other',
+        sender_nombre: 'Roberto',
+        texto_original: '¡Excelente! Seguimos conectados.',
+        idioma_original: 'es',
+        texto_usuario: '¡Excelente! Seguimos conectados.',
+        timestamp: new Date(),
+        es_traducido: false
+      }
+      setMensajes((prev) => [...prev, respuesta])
       setLoading(false)
-    }
-  }
-
-  const handleExitChat = () => {
-    navigate('/dashboard')
+    }, 1000)
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        background: 'white',
-        fontFamily: "'DM Sans', sans-serif"
-      }}
-    >
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      background: 'var(--cream)',
+      fontFamily: "'DM Sans', sans-serif"
+    }}>
       {/* Header */}
-      <div
-        style={{
-          background: 'var(--fill-accent)',
-          color: 'white',
-          padding: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-        }}
-      >
+      <header style={{
+        background: 'var(--fill-accent)',
+        color: 'white',
+        padding: '16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+      }}>
         <div>
-          <div style={{ fontSize: '16px', fontWeight: 700 }}>Roberto</div>
-          <div style={{ fontSize: '12px', opacity: 0.8 }}>En línea</div>
+          <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Roberto</h2>
+          <p style={{ fontSize: '12px', opacity: 0.8, margin: '4px 0 0 0' }}>En línea</p>
         </div>
         <button
-          onClick={handleExitChat}
+          onClick={() => navigate('/dashboard')}
           style={{
             background: 'rgba(255,255,255,0.2)',
             color: 'white',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '8px',
-            padding: '8px 12px',
+            padding: '8px 16px',
             fontSize: '13px',
             fontWeight: 600,
             cursor: 'pointer'
           }}
-          onMouseEnter={(e) => (e.target.style.background = 'rgba(255,255,255,0.3)')}
-          onMouseLeave={(e) => (e.target.style.background = 'rgba(255,255,255,0.2)')}
         >
-          Salir
+          ← Atrás
         </button>
-      </div>
+      </header>
 
-      {/* Messages */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px'
-        }}
-      >
+      {/* Messages Container */}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
         {mensajes.map((msg) => {
           const isSent = msg.sender_id === user.id
           return (
@@ -155,23 +136,36 @@ export default function LinkChat() {
               key={msg.id}
               style={{
                 display: 'flex',
-                justifyContent: isSent ? 'flex-end' : 'flex-start',
-                marginBottom: '8px'
+                flexDirection: 'column',
+                alignItems: isSent ? 'flex-end' : 'flex-start',
+                gap: '4px'
               }}
             >
-              <div
-                style={{
-                  maxWidth: '70%',
-                  background: isSent ? 'var(--fill-accent)' : 'var(--cream2)',
-                  color: isSent ? 'white' : 'var(--text)',
-                  padding: '10px 14px',
-                  borderRadius: isSent ? '18px 4px 18px 18px' : '4px 18px 18px 18px',
-                  fontSize: '14px',
-                  lineHeight: 1.4,
-                  wordWrap: 'break-word'
-                }}
-              >
-                <div>{msg.texto_usuario}</div>
+              {/* Nombre del usuario */}
+              <div style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--text2)',
+                paddingX: isSent ? '14px' : '14px',
+                textAlign: isSent ? 'right' : 'left'
+              }}>
+                {msg.sender_nombre}
+              </div>
+
+              {/* Mensaje bubble */}
+              <div style={{
+                maxWidth: '70%',
+                background: isSent ? 'var(--fill-accent)' : 'white',
+                color: isSent ? 'white' : 'var(--text)',
+                padding: '12px 16px',
+                borderRadius: isSent ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
+                fontSize: '14px',
+                lineHeight: 1.5,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                wordWrap: 'break-word'
+              }}>
+                {msg.texto_usuario}
+
                 {msg.es_traducido && (
                   <button
                     onClick={() => setVerOriginal(verOriginal === msg.id ? null : msg.id)}
@@ -179,53 +173,57 @@ export default function LinkChat() {
                       background: 'transparent',
                       border: 'none',
                       color: isSent ? 'rgba(255,255,255,0.7)' : 'var(--fill-accent)',
-                      fontSize: '11px',
+                      fontSize: '10px',
                       cursor: 'pointer',
-                      marginTop: '4px',
+                      marginTop: '6px',
                       padding: 0,
-                      textDecoration: 'underline'
+                      textDecoration: 'underline',
+                      display: 'block',
+                      fontWeight: 500
                     }}
                   >
                     Ver original
                   </button>
                 )}
+
                 {verOriginal === msg.id && msg.es_traducido && (
-                  <div
-                    style={{
-                      fontSize: '11px',
-                      opacity: 0.7,
-                      marginTop: '4px',
-                      paddingTop: '4px',
-                      borderTop: `1px solid ${isSent ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)'}`
-                    }}
-                  >
-                    <div style={{ fontWeight: 600 }}>Original ({msg.idioma_original})</div>
+                  <div style={{
+                    fontSize: '11px',
+                    opacity: 0.8,
+                    marginTop: '8px',
+                    paddingTop: '8px',
+                    borderTop: `1px solid ${isSent ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)'}`
+                  }}>
+                    <div style={{ fontWeight: 600, marginBottom: '2px' }}>Original ({msg.idioma_original})</div>
                     <div>{msg.texto_original}</div>
                   </div>
                 )}
               </div>
+
+              {/* Timestamp */}
+              <div style={{
+                fontSize: '11px',
+                color: 'var(--text3)',
+                paddingX: '14px'
+              }}>
+                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
           )
         })}
-        {otroUsuarioEscribiendo && (
-          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text2)' }}>Escribiendo</span>
-            <span style={{ fontSize: '12px', animation: 'pulse 1.4s infinite' }}>●●●</span>
-          </div>
-        )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
+      {/* Input Area */}
       <form
         onSubmit={handleEnviarMensaje}
         style={{
           display: 'flex',
-          gap: '8px',
-          padding: '12px 16px',
+          gap: '10px',
+          padding: '16px',
           background: 'white',
-          borderTop: '1px solid rgba(0,0,0,0.1)',
-          boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+          borderTop: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: '0 -2px 8px rgba(0,0,0,0.05)',
           alignItems: 'flex-end'
         }}
       >
@@ -241,19 +239,22 @@ export default function LinkChat() {
           placeholder="Escribe tu mensaje..."
           style={{
             flex: 1,
-            padding: '10px 12px',
-            border: '1px solid rgba(0,0,0,0.1)',
+            padding: '10px 14px',
+            border: '1px solid rgba(0,0,0,0.08)',
             borderRadius: '12px',
             fontSize: '14px',
             fontFamily: 'inherit',
             resize: 'none',
             maxHeight: '100px',
-            outline: 'none'
+            outline: 'none',
+            transition: 'border-color 0.2s'
           }}
           onFocus={(e) => (e.target.style.borderColor = 'var(--fill-accent)')}
-          onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,0.1)')}
+          onBlur={(e) => (e.target.style.borderColor = 'rgba(0,0,0,0.08)')}
         />
+
         <AudioRecorder onAudioSend={(blob) => console.log('Audio:', blob)} disabled={loading} />
+
         <button
           type="submit"
           disabled={loading}
@@ -268,8 +269,12 @@ export default function LinkChat() {
             cursor: loading ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+            flexShrink: 0
           }}
+          onMouseEnter={(e) => !loading && (e.target.style.transform = 'scale(1.05)')}
+          onMouseLeave={(e) => !loading && (e.target.style.transform = 'scale(1)')}
         >
           →
         </button>
