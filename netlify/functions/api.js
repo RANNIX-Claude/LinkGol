@@ -763,3 +763,52 @@ async function obtener_conversaciones(usuario_id) {
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }
+
+// ============================================================
+// PAYMENTS API (STRIPE INTEGRATION)
+// ============================================================
+
+async function crear_checkout_session(body) {
+  try {
+    const { userId, plan = 'monthly' } = body
+
+    if (!userId) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'User ID required' }) }
+    }
+
+    // TODO: Integrate with Stripe API
+    // For now, return mock sessionId
+    const sessionId = `session_${Date.now()}`
+
+    return {
+      statusCode: 201,
+      body: JSON.stringify({ sessionId })
+    }
+  } catch (error) {
+    console.error('crear_checkout_session error:', error)
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
+  }
+}
+
+async function obtener_suscripcion(usuario_id) {
+  try {
+    const { data: user, error } = await supabase
+      .from('usuarios')
+      .select('suscripcion_estado, suscripcion_termina_en')
+      .eq('id', usuario_id)
+      .single()
+
+    if (error) throw error
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        estado: user?.suscripcion_estado || 'free',
+        termina_en: user?.suscripcion_termina_en || null
+      })
+    }
+  } catch (error) {
+    console.error('obtener_suscripcion error:', error)
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
+  }
+}
