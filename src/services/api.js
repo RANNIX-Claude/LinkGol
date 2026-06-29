@@ -285,6 +285,24 @@ export const acceptInvitation = async (token, idioma_seleccionado) => {
 }
 
 // ═══════════════════════════════════════════════════════════
+// CONVERSATIONS (PHASE 7 - PERSISTENT CONTACTS)
+// ═══════════════════════════════════════════════════════════
+
+export const getConversacionesActivas = async (usuario_id) => {
+  try {
+    const response = await fetch(`${API_BASE}/conversaciones/${usuario_id}`, {
+      method: 'GET'
+    })
+
+    if (!response.ok) throw new Error('Failed to fetch conversations')
+    return await response.json()
+  } catch (err) {
+    console.error('Error fetching conversations:', err)
+    throw err
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════
 

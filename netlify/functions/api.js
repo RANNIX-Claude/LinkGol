@@ -113,6 +113,17 @@ exports.handler = async (event, context) => {
       }
     }
 
+    // ============================================================
+    // CONVERSATIONS API (PHASE 7)
+    // ============================================================
+
+    if (path.includes('/conversaciones')) {
+      if (httpMethod === 'GET') {
+        const usuario_id = path.split('/').slice(-1)[0]
+        return await obtener_conversaciones(usuario_id)
+      }
+    }
+
     return {
       statusCode: 404,
       body: JSON.stringify({ error: 'Endpoint not found' })
@@ -673,6 +684,77 @@ async function obtener_mensajes(conversacion_id) {
     }
   } catch (error) {
     console.error('obtener_mensajes error:', error)
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
+  }
+}
+
+// ============================================================
+// CONVERSATIONS FUNCTIONS (PHASE 7 - PERSISTENT CONTACTS)
+// ============================================================
+
+async function obtener_conversaciones(usuario_id) {
+  try {
+    const { data: conversaciones, error } = await supabase
+      .from('conversaciones')
+      .select(`
+        id,
+        participante_1,
+        participante_2,
+        idioma_p1,
+        idioma_p2,
+        estado,
+        created_at,
+        updated_at
+      `)
+      .or(`participante_1.eq.${usuario_id},participante_2.eq.${usuario_id}`)
+      .order('updated_at', { ascending: false })
+
+    if (error) throw error
+
+    // Enrich with last message and other user info
+    const enriched = await Promise.all(
+      conversaciones.map(async (conv) => {
+        const otro_usuario_id = conv.participante_1 === usuario_id ? conv.participante_2 : conv.participante_1
+
+        // Get last message
+        const { data: lastMsg } = await supabase
+          .from('mensajes')
+          .select('texto_original')
+          .eq('conversacion_id', conv.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        // Get other user info
+        const { data: otroUsuario } = await supabase
+          .from('usuarios')
+          .select('nombre, nip_4_digitos')
+          .eq('id', otro_usuario_id)
+          .single()
+
+        return {
+          id: conv.id,
+          otro_usuario_id,
+          otro_usuario_nombre: otroUsuario?.nombre || `Usuario ${otroUsuario?.nip_4_digitos}`,
+          ultimo_mensaje: lastMsg?.texto_original || null,
+          idioma_p1: conv.idioma_p1,
+          idioma_p2: conv.idioma_p2,
+          estado: conv.estado,
+          created_at: conv.created_at,
+          updated_at: conv.updated_at
+        }
+      })
+    )
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        total: enriched.length,
+        conversaciones: enriched
+      })
+    }
+  } catch (error) {
+    console.error('obtener_conversaciones error:', error)
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }

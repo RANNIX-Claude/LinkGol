@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import Landing_v2 from './components/Landing_v2'
 import SignUp from './components/SignUp'
+import Dashboard from './components/Dashboard'
 import CreateInvitation from './components/CreateInvitation'
 import InvitationAccept from './components/InvitationAccept'
 import LinkChat from './components/LinkChat'
@@ -38,22 +39,6 @@ function PublicRoute({ children }) {
   return children
 }
 
-// Dashboard (after login)
-function Dashboard() {
-  const { user } = useAuth()
-
-  return (
-    <div className="linkgol-main">
-      {/* Main chat interface placeholder */}
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>Bienvenido, {user?.nombre}!</h1>
-        <p>NIP: {user?.nip}</p>
-        <p>Idioma: {user?.idioma}</p>
-        <p>Próximas funcionalidades: Chat, contactos, historial</p>
-      </div>
-    </div>
-  )
-}
 
 function App() {
   const { loading } = useAuth()
