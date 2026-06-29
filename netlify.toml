@@ -17,13 +17,14 @@
   publish = "dist"
   # Dev branch will NOT auto-deploy (manual deployment only)
 
-# API routing
+# API routing (must come BEFORE SPA fallback)
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
 
-# SPA fallback
+# SPA fallback (catches everything else)
 [[redirects]]
   from = "/*"
   to = "/index.html"
