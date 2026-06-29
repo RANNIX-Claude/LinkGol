@@ -1,21 +1,24 @@
 import React, { useState } from 'react'
-import { createCheckoutSession } from '../services/stripe'
+import { createCheckoutSession, STRIPE_PLANS } from '../services/stripe'
 
 export default function PaymentModal({ userId, onClose, onUpgrade }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [selectedPlan, setSelectedPlan] = useState('PRO')
 
   const handleUpgrade = async () => {
     setLoading(true)
     setError('')
     try {
-      await createCheckoutSession(userId, 'monthly')
+      await createCheckoutSession(userId, selectedPlan)
       onUpgrade()
     } catch (err) {
-      setError(err.message || 'Payment error')
+      setError(err.message || 'Error en el pago')
       setLoading(false)
     }
   }
+
+  const plan = STRIPE_PLANS[selectedPlan]
 
   return (
     <div style={{
@@ -28,42 +31,82 @@ export default function PaymentModal({ userId, onClose, onUpgrade }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000
+      zIndex: 1000,
+      padding: '16px'
     }}>
       <div style={{
         background: 'white',
         borderRadius: '24px',
         padding: '40px',
-        maxWidth: '500px',
+        maxWidth: '550px',
         textAlign: 'center',
         boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
       }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
-        
+
         <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '12px', color: 'var(--text)' }}>
           Se acabaron tus mensajes
         </h2>
 
-        <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '24px', lineHeight: 1.6 }}>
-          Has alcanzado el límite de 10 mensajes gratuitos. Upgrade a Premium para mensajes ilimitados.
+        <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '32px', lineHeight: 1.6 }}>
+          Has alcanzado el límite de mensajes gratuitos. Elige un plan para continuar conectando.
         </p>
 
+        {/* Plan Selector */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+          {Object.entries(STRIPE_PLANS).map(([key, planData]) => (
+            <div
+              key={key}
+              onClick={() => setSelectedPlan(key)}
+              style={{
+                background: selectedPlan === key ? 'var(--fill-accent)' : 'var(--cream)',
+                borderRadius: '12px',
+                padding: '20px',
+                cursor: 'pointer',
+                border: selectedPlan === key ? '2px solid var(--fill-accent)' : '1px solid rgba(0,0,0,0.1)',
+                color: selectedPlan === key ? 'white' : 'var(--text)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                if (selectedPlan !== key) {
+                  e.currentTarget.style.background = 'rgba(0,82,204,0.05)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedPlan !== key) {
+                  e.currentTarget.style.background = 'var(--cream)'
+                }
+              }}
+            >
+              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '4px' }}>
+                ${planData.price}
+              </div>
+              <div style={{ fontSize: '12px', opacity: 0.8, marginBottom: '12px' }}>
+                {planData.period}
+              </div>
+              <div style={{ fontSize: '11px', opacity: 0.7, lineHeight: 1.5 }}>
+                {planData.features.join(' • ')}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Plan Details */}
         <div style={{
-          background: 'var(--cream)',
+          background: selectedPlan === 'PRO' ? 'rgba(245,158,11,0.1)' : 'rgba(59,130,246,0.1)',
           borderRadius: '12px',
-          padding: '20px',
-          marginBottom: '24px'
+          padding: '16px',
+          marginBottom: '24px',
+          textAlign: 'left'
         }}>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--fill-accent)', marginBottom: '4px' }}>
-            $20 USD/mes
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)', marginBottom: '8px' }}>
+            {plan.name}
           </div>
-          <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
-            ✅ Mensajes ilimitados
-            <br />
-            ✅ 100 minutos de audio
-            <br />
-            ✅ Invitaciones ilimitadas
-          </div>
+          <ul style={{ fontSize: '13px', color: 'var(--text2)', margin: 0, paddingLeft: '20px', lineHeight: 1.8 }}>
+            {plan.features.map((feature, idx) => (
+              <li key={idx}>{feature}</li>
+            ))}
+          </ul>
         </div>
 
         {error && (
@@ -96,7 +139,7 @@ export default function PaymentModal({ userId, onClose, onUpgrade }) {
             marginBottom: '12px'
           }}
         >
-          {loading ? 'Procesando...' : 'Upgrade a Premium'}
+          {loading ? 'Procesando...' : `Actualizar a ${plan.name}`}
         </button>
 
         <button

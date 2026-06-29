@@ -7,6 +7,35 @@ if (!STRIPE_PUBLIC_KEY) {
   console.warn('⚠️ VITE_STRIPE_PUBLIC_KEY not configured in Netlify environment')
 }
 
+// Stripe Plans Configuration
+export const STRIPE_PLANS = {
+  PRO: {
+    name: 'PRO',
+    price: 20,
+    currency: 'USD',
+    period: '/mes',
+    priceId: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || 'price_1SwZg6ILQmjSPAqT0YQyXX',
+    features: [
+      '✅ Mensajes ilimitados',
+      '✅ 100 minutos de audio/mes',
+      '✅ Invitaciones ilimitadas',
+      '✅ Soporte prioritario'
+    ]
+  },
+  STARTER: {
+    name: 'LinkN Starter',
+    price: 5,
+    currency: 'USD',
+    period: '/mes',
+    priceId: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY || 'price_2TwZg6ILQmjSPAqT0YQyXX',
+    features: [
+      '✅ 50 mensajes/mes',
+      '✅ 10 minutos de audio/mes',
+      '✅ 5 invitaciones/mes'
+    ]
+  }
+}
+
 // Load Stripe.js singleton
 let stripePromise = null
 const getStripe = () => {
@@ -16,12 +45,15 @@ const getStripe = () => {
   return stripePromise
 }
 
-export const createCheckoutSession = async (userId, plan = 'monthly') => {
+export const createCheckoutSession = async (userId, planType = 'PRO') => {
   try {
+    const plan = STRIPE_PLANS[planType]
+    if (!plan) throw new Error(`Invalid plan: ${planType}`)
+
     const response = await fetch('/api/v2/payments/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, plan })
+      body: JSON.stringify({ userId, priceId: plan.priceId, planType })
     })
 
     if (!response.ok) throw new Error('Failed to create checkout session')

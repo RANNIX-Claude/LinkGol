@@ -7,6 +7,7 @@
 const { createClient } = require('@supabase/supabase-js')
 const Anthropic = require('@anthropic-ai/sdk')
 const crypto = require('crypto')
+const Stripe = require('stripe')
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -14,6 +15,8 @@ const supabase = createClient(
 )
 
 const client = new Anthropic.default()
+
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
 
 /**
  * Handler principal
@@ -122,6 +125,14 @@ exports.handler = async (event, context) => {
         const usuario_id = path.split('/').slice(-1)[0]
         return await obtener_conversaciones(usuario_id)
       }
+    }
+
+    // ============================================================
+    // PAYMENTS API
+    // ============================================================
+
+    if (path.includes('/payments/checkout') && httpMethod === 'POST') {
+      return await crear_checkout_session(body)
     }
 
     return {
@@ -770,19 +781,59 @@ async function obtener_conversaciones(usuario_id) {
 
 async function crear_checkout_session(body) {
   try {
-    const { userId, plan = 'monthly' } = body
+    const { userId, priceId, planType = 'PRO' } = body
 
-    if (!userId) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'User ID required' }) }
+    if (!userId || !priceId) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'User ID and Price ID required' }) }
     }
 
-    // TODO: Integrate with Stripe API
-    // For now, return mock sessionId
-    const sessionId = `session_${Date.now()}`
+    if (!stripe) {
+      return { statusCode: 500, body: JSON.stringify({ error: 'Stripe not configured' }) }
+    }
+
+    // Get user email from database
+    const { data: user, error: userError } = await supabase
+      .from('usuarios')
+      .select('email, nombre')
+      .eq('id', userId)
+      .single()
+
+    if (userError || !user) {
+      return { statusCode: 404, body: JSON.stringify({ error: 'Usuario no encontrado' }) }
+    }
+
+    // Create Stripe customer
+    const customer = await stripe.customers.create({
+      email: user.email,
+      metadata: {
+        userId: userId,
+        nombre: user.nombre
+      }
+    })
+
+    // Create checkout session
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1
+        }
+      ],
+      mode: 'subscription',
+      success_url: `${process.env.SITE_URL || 'https://linkn.click'}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.SITE_URL || 'https://linkn.click'}/dashboard`,
+      client_reference_id: userId,
+      metadata: {
+        userId,
+        planType
+      }
+    })
 
     return {
       statusCode: 201,
-      body: JSON.stringify({ sessionId })
+      body: JSON.stringify({ sessionId: session.id })
     }
   } catch (error) {
     console.error('crear_checkout_session error:', error)
