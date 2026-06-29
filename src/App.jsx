@@ -6,11 +6,13 @@ import ContactList from './components/ContactList'
 import TypingIndicator from './components/TypingIndicator'
 import InviteDialog from './components/InviteDialog'
 import DualPhoneDemo from './components/DualPhoneDemo'
+import Landing_v2 from './components/Landing_v2'
 import * as API from './services/api'
 import './App.css'
 import './styles/layout.css'
 
 function App() {
+  const [showPortal, setShowPortal] = useState(true) // Mostrar Landing por defecto
   const [showDemo, setShowDemo] = useState(false)
   // ═══════════════════════════════════════════════════════════
   // HOST STATE
@@ -352,6 +354,16 @@ function App() {
   // ═══════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════
+
+  // Mostrar Landing Portal por defecto
+  if (showPortal) {
+    return (
+      <Landing_v2
+        onSignUp={() => setShowPortal(false)}
+        onLogin={() => setShowPortal(false)}
+      />
+    )
+  }
 
   if (showDemo) {
     return (
