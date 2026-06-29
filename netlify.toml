@@ -17,13 +17,6 @@
   publish = "dist"
   # Dev branch will NOT auto-deploy (manual deployment only)
 
-# Functions - should not redirect
-[[redirects]]
-  from = "/.netlify/*"
-  to = "/.netlify/:splat"
-  status = 200
-  force = true
-
 # SPA fallback for all routes
 [[redirects]]
   from = "/*"
