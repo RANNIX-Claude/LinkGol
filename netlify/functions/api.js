@@ -27,6 +27,14 @@ exports.handler = async (event, context) => {
     const body = rawBody ? JSON.parse(rawBody) : {}
 
     // ============================================================
+    // AUTHENTICATION API
+    // ============================================================
+
+    if (path.includes('/auth/signup') && httpMethod === 'POST') {
+      return await auth_signup(body)
+    }
+
+    // ============================================================
     // INVITATIONS API
     // ============================================================
 
@@ -492,5 +500,63 @@ async function calcular_lead_score(body) {
   return {
     statusCode: 200,
     body: JSON.stringify({ contexto, lead_score: { score: 50, razón: 'Análisis simulado' } })
+  }
+}
+
+// ============================================================
+// AUTHENTICATION FUNCTIONS
+// ============================================================
+
+async function auth_signup(body) {
+  try {
+    const { email, password, nombre, apellido, idioma } = body
+
+    // Validate required fields
+    if (!email || !password || !nombre || !idioma) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'Campos requeridos: email, password, nombre, idioma' }) }
+    }
+
+    // Generate NIP (4-digit number)
+    const nip = Math.floor(1000 + Math.random() * 9000).toString()
+
+    // Create user in Supabase
+    const { data: user, error: dbError } = await supabase
+      .from('usuarios')
+      .insert([
+        {
+          email,
+          nombre,
+          apellido: apellido || null,
+          idioma_preferido: idioma,
+          nip_4_digitos: nip,
+          tipo_usuario: 'host'
+        }
+      ])
+      .select()
+      .single()
+
+    if (dbError) {
+      console.error('Database error:', dbError)
+      return { statusCode: 400, body: JSON.stringify({ error: dbError.message || 'Error creating user' }) }
+    }
+
+    // Generate token for session
+    const token = crypto.randomBytes(32).toString('hex')
+
+    return {
+      statusCode: 201,
+      body: JSON.stringify({
+        id: user.id,
+        email: user.email,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        idioma: user.idioma_preferido,
+        nip_4_digitos: user.nip_4_digitos,
+        token
+      })
+    }
+  } catch (error) {
+    console.error('auth_signup error:', error)
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }

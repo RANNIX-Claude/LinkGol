@@ -174,6 +174,117 @@ export const translateMessage = async (messageId, idiomaDestino) => {
 }
 
 // ═══════════════════════════════════════════════════════════
+// AUTHENTICATION (SignUp, Login, User Management)
+// ═══════════════════════════════════════════════════════════
+
+export const signUp = async (email, password, nombre, apellido, idioma) => {
+  try {
+    const response = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password,
+        nombre,
+        apellido,
+        idioma
+      })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to sign up')
+    }
+
+    const user = await response.json()
+    return {
+      id: user.id,
+      email: user.email,
+      nombre: user.nombre,
+      apellido: user.apellido || '',
+      idioma: user.idioma,
+      nip_4_digitos: user.nip_4_digitos,
+      token: user.token
+    }
+  } catch (err) {
+    console.error('SignUp error:', err)
+    throw err
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// INVITATIONS
+// ═══════════════════════════════════════════════════════════
+
+export const createInvitation = async (remitente_id, contexto, primer_mensaje) => {
+  try {
+    const response = await fetch(`${API_BASE}/invitations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        remitente_id,
+        contexto,
+        primer_mensaje,
+        canal_compartida: 'DIRECT_LINK'
+      })
+    })
+
+    if (!response.ok) throw new Error('Failed to create invitation')
+    return await response.json()
+  } catch (err) {
+    console.error('Error creating invitation:', err)
+    throw err
+  }
+}
+
+export const getInvitation = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE}/invitations/${token}`, {
+      method: 'GET'
+    })
+
+    if (!response.ok) throw new Error('Invitation not found or expired')
+    return await response.json()
+  } catch (err) {
+    console.error('Error fetching invitation:', err)
+    throw err
+  }
+}
+
+export const acceptInvitation = async (token, idioma_seleccionado) => {
+  try {
+    const response = await fetch(`${API_BASE}/invitations/accept`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token,
+        idioma_seleccionado
+      })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to accept invitation')
+    }
+
+    const data = await response.json()
+    return {
+      success: true,
+      usuario: {
+        id: data.usuario.id,
+        nip_4_digitos: data.usuario.nip_4_digitos,
+        idioma: data.usuario.idioma
+      },
+      conversacion_id: data.conversacion_id,
+      primer_mensaje: data.primer_mensaje
+    }
+  } catch (err) {
+    console.error('Error accepting invitation:', err)
+    throw err
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════
 
