@@ -34,12 +34,23 @@ export default function Landing({ onSignUp, onLogin }) {
           transition: 'all 0.2s'
         }}>
           <a href="#" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
             fontWeight: 700,
             fontSize: '18px',
             letterSpacing: '-0.5px',
             color: 'var(--text)',
             textDecoration: 'none'
           }}>
+            <svg width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+              {/* Burbuja izquierda */}
+              <circle cx="30" cy="40" r="18" fill="none" stroke="#0052CC" strokeWidth="6" opacity="0.8"/>
+              {/* Burbuja derecha */}
+              <circle cx="70" cy="40" r="18" fill="none" stroke="#0052CC" strokeWidth="6" opacity="1"/>
+              {/* Onda de sonido */}
+              <path d="M 35 40 Q 45 50 50 40 Q 55 30 65 40" fill="none" stroke="#0052CC" strokeWidth="3" strokeLinecap="round" opacity="0.9"/>
+            </svg>
             LinkN<span style={{ color: 'var(--fill-accent)' }}>.</span>click
           </a>
 
@@ -110,6 +121,18 @@ export default function Landing({ onSignUp, onLogin }) {
         overflow: 'hidden',
         color: 'white'
       }}>
+        {/* LOGO */}
+        <div style={{ marginBottom: '24px' }}>
+          <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))' }}>
+            {/* Burbuja izquierda */}
+            <circle cx="30" cy="40" r="18" fill="none" stroke="white" strokeWidth="6" opacity="0.9"/>
+            {/* Burbuja derecha */}
+            <circle cx="70" cy="40" r="18" fill="none" stroke="white" strokeWidth="6"/>
+            {/* Onda de sonido */}
+            <path d="M 35 40 Q 45 50 50 40 Q 55 30 65 40" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"/>
+          </svg>
+        </div>
+
         <div style={{
           background: 'rgba(255,255,255,0.2)',
           color: 'white',
