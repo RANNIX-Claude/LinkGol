@@ -36,9 +36,18 @@ try {
  * Handler principal
  */
 exports.handler = async (event, context) => {
-  const { httpMethod, path, body: rawBody, headers } = event
+  const { httpMethod, body: rawBody, headers } = event
 
-  console.log(`[${new Date().toISOString()}] ${httpMethod} ${path}`)
+  // Get path from multiple possible sources
+  let path = event.path
+  if (!path && event.rawUrl) {
+    path = new URL(event.rawUrl).pathname
+  }
+  if (!path && event.requestContext?.http?.rawPath) {
+    path = event.requestContext.http.rawPath
+  }
+
+  console.log(`[${new Date().toISOString()}] ${httpMethod} ${path}`, { event: Object.keys(event) })
 
   try {
     const body = rawBody ? JSON.parse(rawBody) : {}
