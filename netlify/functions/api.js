@@ -7,7 +7,7 @@
 const { createClient } = require('@supabase/supabase-js')
 const Anthropic = require('@anthropic-ai/sdk')
 const crypto = require('crypto')
-const Stripe = require('stripe')
+const Stripe = require('stripe').default || require('stripe')
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
